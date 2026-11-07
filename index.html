@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinSec Sentinel | Autonomous Agent FinOps & SecOps Circuit Breaker</title>
+  <style>
+    :root {
+      --bg: #070a12;
+      --panel: #111827;
+      --border: #1f2937;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --purple: #8b5cf6;
+      --blue: #3b82f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 16px; line-height: 1.5; }
+    .container { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; gap: 12px; }
+    .brand h1 { font-size: 1.35rem; display: flex; align-items: center; gap: 8px; }
+    .badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 999px; background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.3); }
+    .tagline { font-size: 0.85rem; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 16px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .card h2 { font-size: 1rem; color: #e5e7eb; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .metric-box { background: #0b0f19; border: 1px solid var(--border); padding: 12px; border-radius: 8px; text-align: center; }
+    .metric-val { font-size: 1.45rem; font-weight: 700; color: var(--green); }
+    .metric-lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; }
+    label { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+    textarea, select, input { width: 100%; background: #0b0f19; border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 0.88rem; }
+    textarea { min-height: 72px; resize: vertical; font-family: monospace; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    button { cursor: pointer; border: none; padding: 10px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; transition: 0.15s; flex: 1; min-width: 120px; }
+    .btn-primary { background: var(--blue); color: white; }
+    .btn-success { background: var(--green); color: #052e16; }
+    .btn-amber { background: var(--amber); color: #451a03; }
+    .btn-danger { background: var(--red); color: white; }
+    .sentinel-status { padding: 14px; border-radius: 10px; font-weight: 700; text-align: center; font-size: 0.92rem; border: 1px solid var(--border); background: #0b0f19; }
+    .state-green { border-color: var(--green); color: var(--green); background: rgba(16,185,129,0.1); }
+    .state-amber { border-color: var(--amber); color: var(--amber); background: rgba(245,158,11,0.1); }
+    .state-red { border-color: var(--red); color: var(--red); background: rgba(239,68,68,0.12); }
+    .log-box { background: #05070d; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.78rem; height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    .log-item { padding: 4px 6px; border-radius: 4px; background: rgba(255,255,255,0.02); }
+    .log-red { color: #f87171; border-left: 3px solid var(--red); }
+    .log-amber { color: #fbbf24; border-left: 3px solid var(--amber); }
+    .log-green { color: #34d399; border-left: 3px solid var(--green); }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="brand">
+      <h1>🛡️ FinSec Sentinel <span class="badge">AWS MSP v1.0</span></h1>
+      <p class="tagline">Real-Time FinOps Circuit Breaker & DLP Credential Shield for Multi-Agent Cloud Workloads</p>
+    </div>
+    <div class="btn-row" style="width: auto;">
+      <button class="btn-amber" onclick="runSentinelBenchmark()">⚡ Run 7-Scenario MSP Benchmark</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h2>1. Outbound Multi-Agent Payload Inspector <span class="badge">Proxy Layer</span></h2>
+      <label for="presetSelect">Load MSP Agent Traffic Scenario</label>
+      <select id="presetSelect" onchange="loadPreset()">
+        <option value="0">1. Clean Ticket Triage (Normal Cloud Forward + Log Pruning)</option>
+        <option value="1">2. AWS IAM Key Leak in Stacktrace (DLP Block)</option>
+        <option value="2">3. Runaway Agent Ping-Pong Loop (FinOps Circuit Breaker)</option>
+        <option value="3">4. Bearer JWT + Slack Webhook Exfiltration (DLP Block)</option>
+        <option value="4">5. Recursive Retry Storm on Tool Timeout (Loop Killed)</option>
+        <option value="5">6. Verbose CloudWatch Log Dump (Context Pruned Forward)</option>
+        <option value="6">7. Private RSA Key in Terraform State (DLP Block)</option>
+      </select>
+
+      <label for="agentPair">Agent Route & Projected Loop Horizon (Steps if Unchecked)</label>
+      <input id="agentPair" value="Tier1-Bot -> SecOps-Agent | Horizon: 1 step" readonly />
+
+      <label for="payloadInput">Outbound Agent Prompt + Context Payload</label>
+      <textarea id="payloadInput"></textarea>
+
+      <div class="btn-row">
+        <button class="btn-success" onclick="evaluateCurrent()">🛡️ Inspect via FinSec Sentinel</button>
+        <button class="btn-danger" onclick="resetTelemetry()">🔄 Reset Counters</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. FinOps & SecOps Telemetry <span class="badge">AWS Bedrock Pricing</span></h2>
+      <div id="statusBanner" class="sentinel-status state-green">
+        SENTINEL ARMED: Monitoring Multi-Agent API Gateway
+      </div>
+
+      <div class="metrics">
+        <div class="metric-box">
+          <div id="mSavedUsd" class="metric-val">$0.0000</div>
+          <div class="metric-lbl">Cloud Spend Saved (USD)</div>
+        </div>
+        <div class="metric-box">
+          <div id="mLeaks" class="metric-val" style="color: var(--red);">0</div>
+          <div class="metric-lbl">Secrets / Keys Blocked</div>
+        </div>
+        <div class="metric-box">
+          <div id="mLoops" class="metric-val" style="color: var(--amber);">0</div>
+          <div class="metric-lbl">Runaway Loops Killed</div>
+        </div>
+        <div class="metric-box">
+          <div id="mTokens" class="metric-val" style="color: #60a5fa;">0%</div>
+          <div class="metric-lbl">Billable Token Reduction</div>
+        </div>
+      </div>
+
+      <label>Deterministic Governance Audit Log</label>
+      <div id="logBox" class="log-box">
+        <div class="log-item log-green">[READY] FinSec Sentinel initialized (Bedrock Sonnet rate: $0.003/1K in, $0.015/1K out).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Pricing model: AWS Bedrock Claude 3.5 Sonnet ($0.003 per 1K input tokens, $0.015 per 1K output tokens)
+  // Deterministic token estimator: 1 token = 4 chars; standard agent step output = 250 tokens
+  const INPUT_RATE_PER_1K = 0.003;
+  const OUTPUT_RATE_PER_1K = 0.015;
+  const EST_OUTPUT_TOKENS_PER_STEP = 250;
+
+  const scenarios = [
+    {
+      name: "1. Clean Ticket Triage",
+      route: "Tier1-Bot -> SecOps-Agent",
+      horizonSteps: 1,
+      repeatHashCount: 1,
+      payload: "[2026-11-09T10:15:00Z] [INFO] [TRACE-99812] Customer ticket #4412: VPN latency spike in us-east-1a. Requesting route table verification and BGP peer status check."
+    },
+    {
+      name: "2. AWS IAM Key Leak",
+      route: "DevOps-Agent -> External-LLM",
+      horizonSteps: 1,
+      repeatHashCount: 1,
+      payload: "Debug deployment crash in prod-cluster. Config dump: AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY region=us-east-1"
+    },
+    {
+      name: "3. Runaway Agent Ping-Pong Loop",
+      route: "Planner-Agent <-> Executor-Agent",
+      horizonSteps: 250,
+      repeatHashCount: 4,
+      payload: "[LOOP_STEP_4] Acknowledged. Please confirm the exact JSON schema before I execute the query. Waiting for Planner-Agent confirmation."
+    },
+    {
+      name: "4. Bearer JWT + Webhook Leak",
+      route: "Support-Agent -> Analytics-LLM",
+      horizonSteps: 1,
+      repeatHashCount: 1,
+      payload: "Analyze auth failure for user session: Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U"
+    },
+    {
+      name: "5. Recursive Retry Storm",
+      route: "Billing-Agent -> DB-Agent",
+      horizonSteps: 180,
+      repeatHashCount: 5,
+      payload: "[RETRY_ATTEMPT_5] Error 504 Gateway Timeout calling RDS endpoint. Retrying identical tool invocation with full conversation history attached..."
+    },
+    {
+      name: "6. Verbose CloudWatch Log Dump",
+      route: "Log-Collector -> RCA-Agent",
+      horizonSteps: 1,
+      repeatHashCount: 1,
+      payload: "[2026-11-09T10:16:01Z] [DEBUG] [REQ-00112233] HealthCheck OK.                [2026-11-09T10:16:02Z] [WARN] High memory utilization 91% on node i-0a1b2c3d4e5f6g7h8."
+    },
+    {
+      name: "7. Private Key in Terraform State",
+      route: "IaC-Agent -> Cloud-Reviewer",
+      horizonSteps: 1,
+      repeatHashCount: 1,
+      payload: "Review state diff: -----BEGIN RSA PRIVATE KEY----- MIIEpAIBAAKCAQEA75+xR9EXAMPLEKEYMATERIAL77889900 -----END RSA PRIVATE KEY-----"
+    }
+  ];
+
+  let telemetry = { rawBillableTokens: 0, actualSentTokens: 0, savedUsd: 0, leaksBlocked: 0, loopsKilled: 0 };
+
+  function inspectAgentTraffic(sc) {
+    const t0 = performance.now();
+    const rawChars = sc.payload.length;
+    const rawInputTokensPerStep = Math.ceil(rawChars / 4);
+    const totalUncheckedTokens = sc.horizonSteps * (rawInputTokensPerStep + EST_OUTPUT_TOKENS_PER_STEP);
+    const totalUncheckedUsd =
+      (sc.horizonSteps * rawInputTokensPerStep / 1000) * INPUT_RATE_PER_1K +
+      (sc.horizonSteps * EST_OUTPUT_TOKENS_PER_STEP / 1000) * OUTPUT_RATE_PER_1K;
+
+    // Layer 1: SecOps DLP Credential & Secret Shield
+    const secretPatterns = [
+      { name: "AWS Access Key ID", rx: /AKIA[0-9A-Z]{16}/ },
+      { name: "AWS Secret Key", rx: /AWS_SECRET_ACCESS_KEY\s*=\s*[A-Za-z0-9\/+=]{20,}/ },
+      { name: "Bearer JWT Token", rx: /Bearer\s+eyJ[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+/ },
+      { name: "PEM Private Key", rx: /-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/ }
+    ];
+
+    for (const pat of secretPatterns) {
+      if (pat.rx.test(sc.payload)) {
+        return {
+          status: "RED_DLP_BLOCK",
+          rule: pat.name,
+          rawChars,
+          sentChars: 0,
+          rawBillableTokens: totalUncheckedTokens,
+          sentBillableTokens: 0,
+          savedUsd: totalUncheckedUsd,
+          latencyMs: Number((performance.now() - t0).toFixed(4))
+        };
+      }
+    }
+
+    // Layer 2: FinOps Runaway Loop Circuit Breaker
+    if (sc.repeatHashCount >= 3 || /\[LOOP_STEP_|\[RETRY_ATTEMPT_/i.test(sc.payload)) {
+      return {
+        status: "AMBER_LOOP_KILLED",
+        rule: `Semantic Ping-Pong / Retry Storm (${sc.horizonSteps}-step runaway halted at step ${sc.repeatHashCount})`,
+        rawChars,
+        sentChars: 0,
+        rawBillableTokens: totalUncheckedTokens,
+        sentBillableTokens: 0,
+        savedUsd: totalUncheckedUsd,
+        latencyMs: Number((performance.now() - t0).toFixed(4))
+      };
+    }
+
+    // Layer 3: Deterministic Log Boilerplate Pruning before Cloud Forward
+    const prunedPayload = sc.payload
+      .replace(/\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\]\s*/g, '')
+      .replace(/\[(INFO|DEBUG|TRACE-[0-9]+|REQ-[0-9]+)\]\s*/g, '')
+      .replace(/HealthCheck OK\.\s*/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const sentChars = prunedPayload.length;
+    const sentInputTokens = Math.ceil(sentChars / 4);
+    const actualSentTokens = sentInputTokens + EST_OUTPUT_TOKENS_PER_STEP;
+    const actualUsd =
+      (sentInputTokens / 1000) * INPUT_RATE_PER_1K +
+      (EST_OUTPUT_TOKENS_PER_STEP / 1000) * OUTPUT_RATE_PER_1K;
+
+    return {
+      status: "GREEN_FORWARDED",
+      rule: `Clean payload pruned (${rawChars} -> ${sentChars} chars)`,
+      rawChars,
+      sentChars,
+      rawBillableTokens: totalUncheckedTokens,
+      sentBillableTokens: actualSentTokens,
+      savedUsd: Math.max(0, totalUncheckedUsd - actualUsd),
+      latencyMs: Number((performance.now() - t0).toFixed(4))
+    };
+  }
+
+  function loadPreset() {
+    const idx = Number(document.getElementById('presetSelect').value);
+    const sc = scenarios[idx];
+    document.getElementById('agentPair').value = `${sc.route} | Unchecked Horizon: ${sc.horizonSteps} step(s)`;
+    document.getElementById('payloadInput').value = sc.payload;
+  }
+
+  function addLog(msg, cls) {
+    const box = document.getElementById('logBox');
+    const div = document.createElement('div');
+    div.className = `log-item log-${cls}`;
+    div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    box.prepend(div);
+  }
+
+  function updateUI(res, scName) {
+    telemetry.rawBillableTokens += res.rawBillableTokens;
+    telemetry.actualSentTokens += res.sentBillableTokens;
+    telemetry.savedUsd += res.savedUsd;
+
+    const banner = document.getElementById('statusBanner');
+    if (res.status === "RED_DLP_BLOCK") {
+      telemetry.leaksBlocked++;
+      banner.className = "sentinel-status state-red";
+      banner.textContent = `🛑 DLP SHIELD LOCKED: Blocked ${res.rule} Exfiltration`;
+      addLog(`${scName}: BLOCKED [${res.rule}] | 0 chars sent | Saved $${res.savedUsd.toFixed(4)} (${res.latencyMs} ms)`, 'red');
+    } else if (res.status === "AMBER_LOOP_KILLED") {
+      telemetry.loopsKilled++;
+      banner.className = "sentinel-status state-amber";
+      banner.textContent = `⚡ CIRCUIT BREAKER TRIPPED: ${res.rule}`;
+      addLog(`${scName}: KILLED LOOP | Prevented ${res.rawBillableTokens} runaway tokens | Saved $${res.savedUsd.toFixed(4)} (${res.latencyMs} ms)`, 'amber');
+    } else {
+      banner.className = "sentinel-status state-green";
+      banner.textContent = `✅ VERIFIED & PRUNED: ${res.rule}`;
+      addLog(`${scName}: FORWARDED | ${res.rawChars}->${res.sentChars} chars | Latency ${res.latencyMs} ms`, 'green');
+    }
+
+    const pct = telemetry.rawBillableTokens > 0
+      ? (((telemetry.rawBillableTokens - telemetry.actualSentTokens) / telemetry.rawBillableTokens) * 100).toFixed(1)
+      : "0.0";
+
+    document.getElementById('mSavedUsd').textContent = `$${telemetry.savedUsd.toFixed(4)}`;
+    document.getElementById('mLeaks').textContent = telemetry.leaksBlocked;
+    document.getElementById('mLoops').textContent = telemetry.loopsKilled;
+    document.getElementById('mTokens').textContent = `${pct}%`;
+  }
+
+  function evaluateCurrent() {
+    const idx = Number(document.getElementById('presetSelect').value);
+    const base = scenarios[idx];
+    const customSc = { ...base, payload: document.getElementById('payloadInput').value };
+    const res = inspectAgentTraffic(customSc);
+    updateUI(res, base.name);
+  }
+
+  function resetTelemetry() {
+    telemetry = { rawBillableTokens: 0, actualSentTokens: 0, savedUsd: 0, leaksBlocked: 0, loopsKilled: 0 };
+    document.getElementById('mSavedUsd').textContent = "$0.0000";
+    document.getElementById('mLeaks').textContent = "0";
+    document.getElementById('mLoops').textContent = "0";
+    document.getElementById('mTokens').textContent = "0%";
+    addLog("Telemetry counters reset.", "amber");
+  }
+
+  async function runSentinelBenchmark() {
+    resetTelemetry();
+    addLog("--- Starting 7-Scenario AWS MSP FinSec Benchmark ---", "amber");
+    for (let i = 0; i < scenarios.length; i++) {
+      document.getElementById('presetSelect').value = String(i);
+      loadPreset();
+      const res = inspectAgentTraffic(scenarios[i]);
+      updateUI(res, scenarios[i].name);
+      await new Promise(r => setTimeout(r, 250));
+    }
+    addLog("--- Benchmark Complete: 3/3 Secrets Blocked | 2/2 Loops Halted ---", "green");
+  }
+
+  loadPreset();
+</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+{
+  "rows": [
+    {
+      "n": "1. Clean Ticket Triage",
+      "status": "GREEN_FORWARDED",
+      "rule": "Clean payload pruned (162 -> 118 chars)",
+      "rawChars": 162,
+      "sentChars": 118,
+      "rawBillableTokens": 291,
+      "sentBillableTokens": 280,
+      "savedUsd": 0.00003,
+      "medianMs": 0.0059,
+      "avgMs": 0.0116
+    },
+    {
+      "n": "2. AWS IAM Key Leak",
+      "status": "RED_DLP_BLOCK",
+      "rule": "AWS Access Key ID",
+      "rawChars": 171,
+      "sentChars": 0,
+      "rawBillableTokens": 293,
+      "sentBillableTokens": 0,
+      "savedUsd": 0.00388,
+      "medianMs": 0.0014,
+      "avgMs": 0.0016
+    },
+    {
+      "n": "3. Runaway Agent Ping-Pong Loop",
+      "status": "AMBER_LOOP_KILLED",
+      "rule": "Semantic Ping-Pong / Retry Storm (250-step runaway halted at step 4)",
+      "rawChars": 132,
+      "sentChars": 0,
+      "rawBillableTokens": 70750,
+      "sentBillableTokens": 0,
+      "savedUsd": 0.96225,
+      "medianMs": 0.0019,
+      "avgMs": 0.0026
+    },
+    {
+      "n": "4. Bearer JWT + Webhook Leak",
+      "status": "RED_DLP_BLOCK",
+      "rule": "Bearer JWT Token",
+      "rawChars": 169,
+      "sentChars": 0,
+      "rawBillableTokens": 293,
+      "sentBillableTokens": 0,
+      "savedUsd": 0.00388,
+      "medianMs": 0.002,
+      "avgMs": 0.0026
+    },
+    {
+      "n": "5. Recursive Retry Storm",
+      "status": "AMBER_LOOP_KILLED",
+      "rule": "Semantic Ping-Pong / Retry Storm (180-step runaway halted at step 5)",
+      "rawChars": 143,
+      "sentChars": 0,
+      "rawBillableTokens": 51480,
+      "sentBillableTokens": 0,
+      "savedUsd": 0.69444,
+      "medianMs": 0.002,
+      "avgMs": 0.004
+    },
+    {
+      "n": "6. Verbose CloudWatch Log Dump",
+      "status": "GREEN_FORWARDED",
+      "rule": "Clean payload pruned (163 -> 63 chars)",
+      "rawChars": 163,
+      "sentChars": 63,
+      "rawBillableTokens": 291,
+      "sentBillableTokens": 266,
+      "savedUsd": 0.00007,
+      "medianMs": 0.0032,
+      "avgMs": 0.0037
+    },
+    {
+      "n": "7. Private Key in Terraform State",
+      "status": "RED_DLP_BLOCK",
+      "rule": "PEM Private Key",
+      "rawChars": 129,
+      "sentChars": 0,
+      "rawBillableTokens": 283,
+      "sentBillableTokens": 0,
+      "savedUsd": 0.00385,
+      "medianMs": 0.001,
+      "avgMs": 0.0011
+    }
+  ],
+  "totals": {
+    "rawChars": 1069,
+    "sentChars": 181,
+    "charReductionPct": 83.1,
+    "rawBillableTokens": 123681,
+    "sentBillableTokens": 546,
+    "tokenReductionPct": 99.6,
+    "savedUsdPerBatch": 1.6684,
+    "savedUsdPer1000Batches": 1668.4,
+    "dlpBlocked": "3/3",
+    "loopsKilled": "2/2"
+  }
+}
