@@ -1,7 +1,7 @@
 {
   "project": "FinSec Sentinel",
   "version": "v1.2-task-tool-reachability",
-  "generatedAt": "2026-11-10T03:26:30.577Z",
+  "generatedAt": "2026-11-10T04:44:49.066Z",
   "iterationsPerScenario": 300,
   "engine": "exact bytes extracted from index.html pure-engine markers",
   "allPass": true,
@@ -22,8 +22,8 @@
       "rawBillableTokens": 291,
       "sentBillableTokens": 280,
       "savedUsd": 0,
-      "medianLatencyMs": 0.004,
-      "medianReachabilityStepMs": 0.0094
+      "medianLatencyMs": 0.0034,
+      "medianReachabilityStepMs": 0.0138
     },
     {
       "scenario": "2. AWS IAM Key Leak",
@@ -39,8 +39,8 @@
       "charsSent": 0,
       "rawBillableTokens": 293,
       "sentBillableTokens": 0,
-      "savedUsd": 0.0039,
-      "medianLatencyMs": 0.0009,
+      "savedUsd": 0.001,
+      "medianLatencyMs": 0.001,
       "medianReachabilityStepMs": null
     },
     {
@@ -57,8 +57,8 @@
       "charsSent": 0,
       "rawBillableTokens": 70750,
       "sentBillableTokens": 0,
-      "savedUsd": 0.9623,
-      "medianLatencyMs": 0.0013,
+      "savedUsd": 0.2406,
+      "medianLatencyMs": 0.0014,
       "medianReachabilityStepMs": null
     },
     {
@@ -75,8 +75,8 @@
       "charsSent": 0,
       "rawBillableTokens": 293,
       "sentBillableTokens": 0,
-      "savedUsd": 0.0039,
-      "medianLatencyMs": 0.0013,
+      "savedUsd": 0.001,
+      "medianLatencyMs": 0.0014,
       "medianReachabilityStepMs": null
     },
     {
@@ -93,7 +93,7 @@
       "charsSent": 0,
       "rawBillableTokens": 51480,
       "sentBillableTokens": 0,
-      "savedUsd": 0.6944,
+      "savedUsd": 0.1736,
       "medianLatencyMs": 0.0007,
       "medianReachabilityStepMs": null
     },
@@ -111,8 +111,8 @@
       "charsSent": 63,
       "rawBillableTokens": 291,
       "sentBillableTokens": 266,
-      "savedUsd": 0.0001,
-      "medianLatencyMs": 0.0028,
+      "savedUsd": 0,
+      "medianLatencyMs": 0.0023,
       "medianReachabilityStepMs": 0.0084
     },
     {
@@ -129,7 +129,7 @@
       "charsSent": 0,
       "rawBillableTokens": 283,
       "sentBillableTokens": 0,
-      "savedUsd": 0.0038,
+      "savedUsd": 0.001,
       "medianLatencyMs": 0.0007,
       "medianReachabilityStepMs": null
     },
@@ -149,7 +149,7 @@
       "sentBillableTokens": 270,
       "savedUsd": 0,
       "medianLatencyMs": 0.0024,
-      "medianReachabilityStepMs": 0.0123
+      "medianReachabilityStepMs": 0.0115
     },
     {
       "scenario": "9. Privilege Escalation Outside Task Scope",
@@ -165,9 +165,9 @@
       "charsSent": 0,
       "rawBillableTokens": 283,
       "sentBillableTokens": 0,
-      "savedUsd": 0.0038,
-      "medianLatencyMs": 0.0133,
-      "medianReachabilityStepMs": 0.0109
+      "savedUsd": 0.001,
+      "medianLatencyMs": 0.0108,
+      "medianReachabilityStepMs": 0.0092
     },
     {
       "scenario": "10. Ambiguous Environment Escalation",
@@ -184,8 +184,8 @@
       "rawBillableTokens": 274,
       "sentBillableTokens": 274,
       "savedUsd": 0,
-      "medianLatencyMs": 0.0017,
-      "medianReachabilityStepMs": 0.0088
+      "medianLatencyMs": 0.0016,
+      "medianReachabilityStepMs": 0.0084
     }
   ],
   "totalsOriginal7": {
@@ -193,7 +193,7 @@
     "charsSent": 181,
     "rawBillableTokens": 123681,
     "sentBillableTokens": 546,
-    "savedUsd": 1.6684,
+    "savedUsd": 0.4172,
     "charReductionPct": 83.1,
     "tokenReductionPct": 99.6
   },
@@ -202,7 +202,7 @@
     "charsSent": 353,
     "rawBillableTokens": 124508,
     "sentBillableTokens": 1090,
-    "savedUsd": 1.6722,
+    "savedUsd": 0.4182,
     "charReductionPct": 74.3,
     "tokenReductionPct": 99.1
   }

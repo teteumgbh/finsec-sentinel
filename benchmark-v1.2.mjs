@@ -88,8 +88,14 @@ console.log('\nOriginal 7 totals:', JSON.stringify(t7));
 console.log('All 10 totals:   ', JSON.stringify(t10));
 
 // Regression gate against the executed v1.0 benchmark
-const regressionOk = t7.charsIn === 1069 && t7.charsSent === 181 && t7.rawBillableTokens === 123681 && t7.sentBillableTokens === 546 && Math.abs(t7.savedUsd - 1.6684) < 0.001;
-console.log('v1.0 regression check (1069->181 chars, 123681->546 tokens, $1.6684):', regressionOk ? 'IDENTICAL' : 'DIFFERS');
+// Regression identity is defined on chars + tokens (price-independent). The USD
+// baseline moved on Nov 9, 2026 with the #BuildHybridAI migration: the engine's
+// price constants were swapped from AWS Bedrock Claude 3.5 Sonnet
+// ($0.003/$0.015 per 1K) to Gemini 3.8 Flash ($0.00075/$0.00375 per 1K), so the
+// original-7 saved figure moved $1.6684 -> $0.4172 (exactly x0.25: both rates
+// are one quarter of the Bedrock baseline). See README Appendix A/B.
+const regressionOk = t7.charsIn === 1069 && t7.charsSent === 181 && t7.rawBillableTokens === 123681 && t7.sentBillableTokens === 546 && Math.abs(t7.savedUsd - 0.4172) < 0.001;
+console.log('v1.0 regression check (1069->181 chars, 123681->546 tokens, $0.4172 Gemini-priced; was $1.6684 Bedrock):', regressionOk ? 'IDENTICAL' : 'DIFFERS');
 console.log('ALL SCENARIOS PASS:', allPass && regressionOk);
 
 // Fresh single pass for the audit ledger artifact

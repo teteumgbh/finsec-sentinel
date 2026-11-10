@@ -1,16 +1,16 @@
 {
   "schema": "finsec-sentinel-audit-ledger-v1.2",
-  "generatedAt": "2026-11-10T03:26:30.577Z",
+  "generatedAt": "2026-11-10T04:44:49.065Z",
   "entriesCount": 10,
   "entries": [
     {
-      "ts": "2026-11-10T03:26:30.576Z",
-      "commitmentHash": "3ee1fc0a",
+      "ts": "2026-11-10T04:44:49.065Z",
+      "commitmentHash": "c8b8eeb1",
       "scenario": "1. Clean Ticket Triage",
       "charsIn": 162,
       "charsSent": 118,
       "savedPct": 27.2,
-      "totalMs": 0.0393,
+      "totalMs": 0.0292,
       "finalStatus": "GREEN_FORWARDED",
       "stages": [
         {
@@ -20,7 +20,7 @@
           "reason": "No credential or secret pattern matched.",
           "charsIn": 162,
           "charsSent": 118,
-          "ms": 0.0144
+          "ms": 0.01
         },
         {
           "stage": "STAGE_1_DETERMINISTIC",
@@ -38,7 +38,7 @@
           "reason": "No AWS tool calls induced in trace. Task roots: [OBSERVE_COST_METRICS].",
           "charsIn": 162,
           "charsSent": 118,
-          "ms": 0.0249
+          "ms": 0.0192
         },
         {
           "stage": "STAGE_1_DETERMINISTIC",
@@ -52,13 +52,13 @@
       ]
     },
     {
-      "ts": "2026-11-10T03:26:30.577Z",
-      "commitmentHash": "96368eab",
+      "ts": "2026-11-10T04:44:49.065Z",
+      "commitmentHash": "06270158",
       "scenario": "2. AWS IAM Key Leak",
       "charsIn": 171,
       "charsSent": 0,
       "savedPct": 100,
-      "totalMs": 0.0016,
+      "totalMs": 0.0015,
       "finalStatus": "RED_DLP_BLOCK",
       "stages": [
         {
@@ -68,18 +68,18 @@
           "reason": "AWS Access Key ID",
           "charsIn": 171,
           "charsSent": 0,
-          "ms": 0.0016
+          "ms": 0.0015
         }
       ]
     },
     {
-      "ts": "2026-11-10T03:26:30.577Z",
-      "commitmentHash": "2cc79f1e",
+      "ts": "2026-11-10T04:44:49.065Z",
+      "commitmentHash": "4e87e91b",
       "scenario": "3. Runaway Agent Ping-Pong Loop",
       "charsIn": 132,
       "charsSent": 0,
       "savedPct": 100,
-      "totalMs": 0.0018,
+      "totalMs": 0.0015,
       "finalStatus": "AMBER_LOOP_KILLED",
       "stages": [
         {
@@ -89,7 +89,7 @@
           "reason": "No credential or secret pattern matched.",
           "charsIn": 132,
           "charsSent": 0,
-          "ms": 0.0018
+          "ms": 0.0015
         },
         {
           "stage": "STAGE_1_DETERMINISTIC",
@@ -103,13 +103,13 @@
       ]
     },
     {
-      "ts": "2026-11-10T03:26:30.577Z",
-      "commitmentHash": "fb3750fe",
+      "ts": "2026-11-10T04:44:49.065Z",
+      "commitmentHash": "f5df7f5a",
       "scenario": "4. Bearer JWT + Webhook Leak",
       "charsIn": 169,
       "charsSent": 0,
       "savedPct": 100,
-      "totalMs": 0.0028,
+      "totalMs": 0.0019,
       "finalStatus": "RED_DLP_BLOCK",
       "stages": [
         {
@@ -119,18 +119,18 @@
           "reason": "Bearer JWT Token",
           "charsIn": 169,
           "charsSent": 0,
-          "ms": 0.0028
+          "ms": 0.0019
         }
       ]
     },
     {
-      "ts": "2026-11-10T03:26:30.577Z",
-      "commitmentHash": "99780d80",
+      "ts": "2026-11-10T04:44:49.065Z",
+      "commitmentHash": "550aecfb",
       "scenario": "5. Recursive Retry Storm",
       "charsIn": 143,
       "charsSent": 0,
       "savedPct": 100,
-      "totalMs": 0.0015,
+      "totalMs": 0.0012,
       "finalStatus": "AMBER_LOOP_KILLED",
       "stages": [
         {
@@ -140,7 +140,7 @@
           "reason": "No credential or secret pattern matched.",
           "charsIn": 143,
           "charsSent": 0,
-          "ms": 0.0015
+          "ms": 0.0012
         },
         {
           "stage": "STAGE_1_DETERMINISTIC",
@@ -154,13 +154,13 @@
       ]
     },
     {
-      "ts": "2026-11-10T03:26:30.577Z",
-      "commitmentHash": "233ec1b8",
+      "ts": "2026-11-10T04:44:49.065Z",
+      "commitmentHash": "29cd51c5",
       "scenario": "6. Verbose CloudWatch Log Dump",
       "charsIn": 163,
       "charsSent": 63,
       "savedPct": 61.3,
-      "totalMs": 0.0199,
+      "totalMs": 0.0173,
       "finalStatus": "GREEN_FORWARDED",
       "stages": [
         {
@@ -170,7 +170,7 @@
           "reason": "No credential or secret pattern matched.",
           "charsIn": 163,
           "charsSent": 63,
-          "ms": 0.0081
+          "ms": 0.0064
         },
         {
           "stage": "STAGE_1_DETERMINISTIC",
@@ -188,7 +188,7 @@
           "reason": "No AWS tool calls induced in trace. Task roots: [OBSERVE_COST_METRICS].",
           "charsIn": 163,
           "charsSent": 63,
-          "ms": 0.0118
+          "ms": 0.0109
         },
         {
           "stage": "STAGE_1_DETERMINISTIC",
@@ -202,13 +202,13 @@
       ]
     },
     {
-      "ts": "2026-11-10T03:26:30.577Z",
-      "commitmentHash": "e98767c1",
+      "ts": "2026-11-10T04:44:49.065Z",
+      "commitmentHash": "9fc41923",
       "scenario": "7. Private Key in Terraform State",
       "charsIn": 129,
       "charsSent": 0,
       "savedPct": 100,
-      "totalMs": 0.0015,
+      "totalMs": 0.0017,
       "finalStatus": "RED_DLP_BLOCK",
       "stages": [
         {
@@ -218,18 +218,18 @@
           "reason": "PEM Private Key",
           "charsIn": 129,
           "charsSent": 0,
-          "ms": 0.0015
+          "ms": 0.0017
         }
       ]
     },
     {
-      "ts": "2026-11-10T03:26:30.577Z",
-      "commitmentHash": "ec6591b8",
+      "ts": "2026-11-10T04:44:49.065Z",
+      "commitmentHash": "17304e5a",
       "scenario": "8. In-Scope FinOps Query",
       "charsIn": 77,
       "charsSent": 77,
       "savedPct": 0,
-      "totalMs": 0.0251,
+      "totalMs": 0.0208,
       "finalStatus": "GREEN_FORWARDED",
       "stages": [
         {
@@ -239,7 +239,7 @@
           "reason": "No credential or secret pattern matched.",
           "charsIn": 77,
           "charsSent": 77,
-          "ms": 0.0044
+          "ms": 0.0035
         },
         {
           "stage": "STAGE_1_DETERMINISTIC",
@@ -257,7 +257,7 @@
           "reason": "Proven path from task roots [OBSERVE_COST_METRICS] (1 tool call(s) verified).",
           "charsIn": 77,
           "charsSent": 77,
-          "ms": 0.0207,
+          "ms": 0.0173,
           "citation": "ce:GetCostAndUsage\", \"region\": \"us-east-1\", \"granularity\": \"DAILY\"}",
           "span": [
             10,
@@ -276,13 +276,13 @@
       ]
     },
     {
-      "ts": "2026-11-10T03:26:30.577Z",
-      "commitmentHash": "4440e441",
+      "ts": "2026-11-10T04:44:49.065Z",
+      "commitmentHash": "2d6fd8c2",
       "scenario": "9. Privilege Escalation Outside Task Scope",
       "charsIn": 132,
       "charsSent": 0,
       "savedPct": 100,
-      "totalMs": 0.0199,
+      "totalMs": 0.0395,
       "finalStatus": "RED_UNREACHABLE",
       "stages": [
         {
@@ -292,7 +292,7 @@
           "reason": "No credential or secret pattern matched.",
           "charsIn": 132,
           "charsSent": 132,
-          "ms": 0.0035
+          "ms": 0.0028
         },
         {
           "stage": "STAGE_1_DETERMINISTIC",
@@ -310,7 +310,7 @@
           "reason": "UNREACHABLE_TOOL_FAMILY: Agent trace invokes [IAM_PRIVILEGE_MUTATION] (AWS_IAM_ESCALATION), but task roots only permit [OBSERVE_COST_METRICS].",
           "charsIn": 132,
           "charsSent": 132,
-          "ms": 0.0164,
+          "ms": 0.0367,
           "citation": "iam:AttachRolePolicy(RoleName=agent-worker, PolicyArn=arn:aws:iam::aws:policy/AdministratorAc...",
           "span": [
             32,
@@ -320,13 +320,13 @@
       ]
     },
     {
-      "ts": "2026-11-10T03:26:30.577Z",
-      "commitmentHash": "0ea62c7b",
+      "ts": "2026-11-10T04:44:49.065Z",
+      "commitmentHash": "35234a1e",
       "scenario": "10. Ambiguous Environment Escalation",
       "charsIn": 95,
       "charsSent": 95,
       "savedPct": 0,
-      "totalMs": 0.0174,
+      "totalMs": 0.0153,
       "finalStatus": "GREEN_FORWARDED",
       "stages": [
         {
@@ -336,7 +336,7 @@
           "reason": "No credential or secret pattern matched.",
           "charsIn": 95,
           "charsSent": 95,
-          "ms": 0.0025
+          "ms": 0.0027
         },
         {
           "stage": "STAGE_1_DETERMINISTIC",
@@ -354,7 +354,7 @@
           "reason": "UNSCOPED_INFRA_TARGET: Task permits [PROVISION_SCALE_INFRA] without explicit target environment/host, while agent trace binds [prod, us-east-1]. Escalating to Stage 2 FinOps policy check.",
           "charsIn": 95,
           "charsSent": 95,
-          "ms": 0.0149,
+          "ms": 0.0126,
           "citation": "ec2:RunInstances\", \"env\": \"prod\", \"region\": \"us-east-1\", \"instanceType\": \"m6i.large\"}",
           "span": [
             10,

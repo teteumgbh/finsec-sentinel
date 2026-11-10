@@ -55,18 +55,22 @@
 <div class="container">
   <header>
     <div class="brand">
-      <h1>🛡️ FinSec Sentinel <span class="badge">AWS MSP v1.2 · Task-to-Tool Reachability</span></h1>
-      <p class="tagline">Real-Time FinOps Circuit Breaker & DLP Credential Shield for Multi-Agent Cloud Workloads</p>
+      <h1>🛡️ FinSec Sentinel <span class="badge">#BuildHybridAI v1.2 · Task-to-Tool Reachability</span></h1>
+      <p class="tagline">FinSec Sentinel v1.2 — Deterministic Intent Reachability &amp; FinOps Firewall (Migrated to #BuildHybridAI / Firebase AI Logic Architecture)</p>
     </div>
     <div class="btn-row" style="width: auto;">
-      <button class="btn-amber" onclick="runSentinelBenchmark()">⚡ Run 10-Scenario MSP Benchmark</button>
+      <button class="btn-amber" onclick="runSentinelBenchmark()">⚡ Run 10-Scenario Benchmark</button>
     </div>
   </header>
+<details class="card" style="margin-top:12px; padding:10px 14px;">
+  <summary style="cursor:pointer; color:#fbbf24;">&#9432; Migration note — #BuildHybridAI</summary>
+  <p style="margin:8px 0 2px;"><em>Note: Originally engineered for AWS MSP on Nov 7; migrated to #BuildHybridAI hybrid architecture on Nov 9.</em></p>
+</details>
 
   <div class="grid">
     <div class="card">
       <h2>1. Outbound Multi-Agent Payload Inspector <span class="badge">Proxy Layer</span></h2>
-      <label for="presetSelect">Load MSP Agent Traffic Scenario</label>
+      <label for="presetSelect">Load Agent Traffic Scenario</label>
       <select id="presetSelect" onchange="loadPreset()">
         <option value="0">1. Clean Ticket Triage (Normal Cloud Forward + Log Pruning)</option>
         <option value="1">2. AWS IAM Key Leak in Stacktrace (DLP Block)</option>
@@ -93,7 +97,7 @@
     </div>
 
     <div class="card">
-      <h2>2. FinOps & SecOps Telemetry <span class="badge">AWS Bedrock Pricing</span></h2>
+      <h2>2. FinOps & SecOps Telemetry <span class="badge">Gemini Flash Pricing · Firebase AI Logic</span></h2>
       <div id="statusBanner" class="sentinel-status state-green">
         SENTINEL ARMED: Monitoring Multi-Agent API Gateway
       </div>
@@ -119,7 +123,7 @@
 
       <label>Deterministic Governance Audit Log</label>
       <div id="logBox" class="log-box">
-        <div class="log-item log-green">[READY] FinSec Sentinel initialized (Bedrock Sonnet rate: $0.003/1K in, $0.015/1K out).</div>
+        <div class="log-item log-green">[READY] FinSec Sentinel initialized (Gemini 3.8 Flash rate: $0.00075/1K in, $0.00375/1K out).</div>
       </div>
 
       <label style="margin-top:14px;">Live Audit Trail — every inspection as a verifiable record (v1.2)</label>
@@ -133,10 +137,14 @@
 
 <script>
 /*__PURE_ENGINE_BEGIN__*/
-  // Pricing model: AWS Bedrock Claude 3.5 Sonnet ($0.003 per 1K input tokens, $0.015 per 1K output tokens)
+  // Pricing model: Gemini 3.8 Flash via Firebase AI Logic ($0.75 per 1M input tokens,
+  // $3.75 per 1M output tokens — Google Gemini API pricing, verified Nov 9, 2026;
+  // introductory rate through Dec 31, 2026). Migrated from the AWS Bedrock baseline
+  // of Nov 7, 2026 — see README Appendix A/B. Only these two constants changed in
+  // the v1.2 engine; every verdict, token count and character count is identical.
   // Deterministic token estimator: 1 token = 4 chars; standard agent step output = 250 tokens
-  const INPUT_RATE_PER_1K = 0.003;
-  const OUTPUT_RATE_PER_1K = 0.015;
+  const INPUT_RATE_PER_1K = 0.00075;
+  const OUTPUT_RATE_PER_1K = 0.00375;
   const EST_OUTPUT_TOKENS_PER_STEP = 250;
 
   const scenarios = [
@@ -767,7 +775,7 @@ function verifyTaskToolReachability(taskScope, agentTrace) {
 
   async function runSentinelBenchmark() {
     resetTelemetry();
-    addLog("--- Starting 10-Scenario AWS MSP FinSec Benchmark ---", "amber");
+    addLog("--- Starting 10-Scenario FinSec Benchmark (#BuildHybridAI) ---", "amber");
     for (let i = 0; i < scenarios.length; i++) {
       document.getElementById('presetSelect').value = String(i);
       loadPreset();

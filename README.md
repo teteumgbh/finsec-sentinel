@@ -1,9 +1,12 @@
 # 🛡️ FinSec Sentinel
 > **Real-Time FinOps Circuit Breaker & DLP Credential Shield for Multi-Agent Cloud Workloads.**
+> FinSec Sentinel v1.2 — Deterministic Intent Reachability & FinOps Firewall (Migrated to #BuildHybridAI / Firebase AI Logic Architecture)
 
-Built for the **AWS MSP AI Hackathon 2026**, **FinSec Sentinel** is a lightweight, deterministic governance proxy that sits between autonomous IT/MSP agents and cloud foundation models (such as **Amazon Bedrock**). It solves the two most expensive production failures in enterprise agent deployments: **runaway agent loops that explode cloud bills** and **accidental credential exfiltration in debugging prompts**.
+**FinSec Sentinel** is a lightweight, deterministic governance proxy that sits between autonomous IT/MSP agents and cloud foundation models. It solves the two most expensive production failures in enterprise agent deployments: **runaway agent loops that explode cloud bills** and **accidental credential exfiltration in debugging prompts**. Originally engineered for the **AWS MSP AI Hackathon** (Nov 7, 2026) and migrated on Nov 9, 2026 to the **Google / Firebase #BuildHybridAI Hackathon 2026**, where its cloud stage is priced and routed as **Gemini Flash via Firebase AI Logic** (the Nov 7 Bedrock baseline is preserved in Appendix A).
 
 🔗 **Live Interactive Console:** [https://teteumgbh.github.io/finsec-sentinel/](https://teteumgbh.github.io/finsec-sentinel/)
+
+🔗 **Sibling project — The Safe Latch (A Trava):** the same deterministic core (on-device gate + L2.5 Intent Reachability Graph + live audit ledger) aimed at voice/browser agents, also entered in #BuildHybridAI. Repo: [github.com/teteumgbh/the-safe-latch](https://github.com/teteumgbh/the-safe-latch) · Live: [teteumgbh.github.io/the-safe-latch](https://teteumgbh.github.io/the-safe-latch/)
 
 ## 🚨 The Enterprise MSP Problem
 Managed Service Providers (MSPs) deploying autonomous Tier-1, SecOps, and DevOps agents face two critical operational risks:
@@ -13,38 +16,38 @@ Managed Service Providers (MSPs) deploying autonomous Tier-1, SecOps, and DevOps
 ## 🧠 3-Layer Deterministic Governance Architecture
 1. **Layer 1 — SecOps DLP Credential Shield:** Scans outbound agent payloads in sub-millisecond time to block AWS IAM keys, Bearer tokens, and RSA/PEM private keys before they leave the VPC/client boundary.
 2. **Layer 2 — FinOps Loop Circuit Breaker:** Detects repetitive semantic step signatures (`>=3` identical retry/confirmation cycles) and trips the circuit breaker before runaway horizons (180–250 steps) drain cloud budgets.
-3. **Layer 3 — CloudWatch & Log Boilerplate Pruner:** Strips redundant timestamps, debug trace IDs, and `HealthCheck OK` noise from legitimate operational prompts before billing tokens on AWS Bedrock.
+3. **Layer 3 — Log Boilerplate Pruner:** Strips redundant timestamps, debug trace IDs, and `HealthCheck OK` noise from legitimate operational prompts before billing tokens on the cloud model (Gemini Flash via Firebase AI Logic).
 
-## 📊 Empirical 7-Scenario MSP Benchmark (300 Iterations / Scenario)
-The production function (`inspectAgentTraffic`) was extracted from `index.html` and executed across **300 iterations per scenario** (2,100 total executions), using AWS Bedrock Claude 3.5 Sonnet pricing (`$0.003 / 1K input tokens`, `$0.015 / 1K output tokens`, deterministic estimator `1 token = 4 chars`, `250 output tokens/step`). Every figure below is the executed output; the raw log is committed as `benchmark-raw-log.json`.
+## 📊 Empirical 7-Scenario Benchmark (300 Iterations / Scenario)
+The production function (`inspectAgentTraffic`) was extracted from `index.html` and executed across **300 iterations per scenario** (2,100 total executions), using Gemini 3.8 Flash pricing via Firebase AI Logic (`$0.75 / 1M input tokens`, `$3.75 / 1M output tokens`, deterministic estimator `1 token = 4 chars`, `250 output tokens/step`). Every figure below is the executed output; the raw log is committed as `benchmark-raw-log.json`.
 
 | Scenario | Sentinel Status | Input Payload (chars) | Sent to Cloud (chars) | Unchecked Billable Tokens | Actual Billed Tokens | USD Saved / Incident | Median Latency |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1. Clean Ticket Triage (1 step)** | `GREEN_FORWARDED` | 162 | 118 | 291 | 280 | $0.00003 | 0.0059 ms |
-| **2. AWS IAM Key Leak (1 step)** | `RED_DLP_BLOCK` | 171 | 0 | 293 | 0 | $0.00388 | 0.0014 ms |
-| **3. Agent Ping-Pong Loop (250 steps)** | `AMBER_LOOP_KILLED` | 132 | 0 | 70,750 | 0 | $0.96225 | 0.0019 ms |
-| **4. Bearer JWT Leak (1 step)** | `RED_DLP_BLOCK` | 169 | 0 | 293 | 0 | $0.00388 | 0.0020 ms |
-| **5. Recursive Retry Storm (180 steps)** | `AMBER_LOOP_KILLED` | 143 | 0 | 51,480 | 0 | $0.69444 | 0.0020 ms |
-| **6. Verbose CloudWatch Dump (1 step)** | `GREEN_FORWARDED` | 163 | 63 | 291 | 266 | $0.00007 | 0.0032 ms |
-| **7. Private RSA Key in State (1 step)** | `RED_DLP_BLOCK` | 129 | 0 | 283 | 0 | $0.00385 | 0.0010 ms |
+| **1. Clean Ticket Triage (1 step)** | `GREEN_FORWARDED` | 162 | 118 | 291 | 280 | $0.0000 | 0.0034 ms |
+| **2. AWS IAM Key Leak (1 step)** | `RED_DLP_BLOCK` | 171 | 0 | 293 | 0 | $0.0010 | 0.0010 ms |
+| **3. Agent Ping-Pong Loop (250 steps)** | `AMBER_LOOP_KILLED` | 132 | 0 | 70,750 | 0 | $0.2406 | 0.0014 ms |
+| **4. Bearer JWT Leak (1 step)** | `RED_DLP_BLOCK` | 169 | 0 | 293 | 0 | $0.0010 | 0.0014 ms |
+| **5. Recursive Retry Storm (180 steps)** | `AMBER_LOOP_KILLED` | 143 | 0 | 51,480 | 0 | $0.1736 | 0.0007 ms |
+| **6. Verbose CloudWatch Dump (1 step)** | `GREEN_FORWARDED` | 163 | 63 | 291 | 266 | $0.0000 | 0.0023 ms |
+| **7. Private RSA Key in State (1 step)** | `RED_DLP_BLOCK` | 129 | 0 | 283 | 0 | $0.0010 | 0.0007 ms |
 
 ### Measured Benchmark Totals
 - **Single-Pass Input Character Reduction:** `1,069 chars evaluated` -> `181 chars sent` (**83.1% measured input character reduction**).
 - **Total Billable Token Reduction (with Loop Horizons):** `123,681 unchecked tokens` -> `546 billed tokens` (**99.6% token reduction** across the incident batch).
-- **Direct Cloud Cost Saved per 7-Incident Batch:** **$1.6684 USD** (**$1,668.40 USD saved** per 1,000 operational incident cycles).
+- **Direct Cloud Cost Saved per 7-Incident Batch:** **$0.4172 USD** (**$417.20 USD saved** per 1,000 operational incident cycles, at Gemini Flash rates).
 - **Secret / Credential Leak Block Rate:** `3 / 3` (100% of tested IAM, JWT, and RSA secrets intercepted).
 - **Runaway Loop Containment:** `2 / 2` (100% of multi-step loops halted).
-- **Governance Filter Median Latency:** `0.0010 ms – 0.0059 ms` per scenario.
+- **Governance Filter Median Latency:** `0.0007 ms – 0.0034 ms` per scenario (re-measured Nov 9, 2026).
 
 ## 🔬 Methodology & Engineering Caveats
-1. **Pricing & Token Model:** Cost savings are computed deterministically from character counts (`Math.ceil(chars / 4)`) and explicit loop horizon multipliers (`250` and `180` steps) using standard public Amazon Bedrock Claude 3.5 Sonnet rates. The 250 output tokens/step is a stated modeling assumption of the benchmark, applied identically to the protected and unprotected arms.
-2. **Scope of DLP Detection:** Regex signatures validate deterministic interception of structured secrets (`AKIA...`, `eyJ...`, PEM headers). Arbitrary unstructured PII requires pairing with Amazon Macie or Bedrock Guardrails in production.
+1. **Pricing & Token Model:** Cost savings are computed deterministically from character counts (`Math.ceil(chars / 4)`) and explicit loop horizon multipliers (`250` and `180` steps) using Google Gemini API rates for Gemini 3.8 Flash (`$0.75 / 1M` input, `$3.75 / 1M` output — verified Nov 9, 2026; this is an introductory rate scheduled by Google to rise to `$1.50 / $7.50` on Jan 1, 2027). The 250 output tokens/step is a stated modeling assumption of the benchmark, applied identically to the protected and unprotected arms.
+2. **Scope of DLP Detection:** Regex signatures validate deterministic interception of structured secrets (`AKIA...`, `eyJ...`, PEM headers). Arbitrary unstructured PII requires pairing with a dedicated DLP/PII service in production.
 3. **Verification Note:** During design review, hand-counted character totals for the scenario strings differed slightly from the shipped strings (6 of 7 strings, by 1–13 chars). All figures published here come from executing the shipped code itself — never from hand counts — and the raw execution log is committed to this repository (`benchmark-raw-log.json`) for audit.
-4. **Execution Environment:** Latency medians were measured via automated Node.js extraction (300 iterations/scenario). Live browser telemetry on target MSP hardware is scheduled for Phase 2 verification.
+4. **Execution Environment:** Latency medians were measured via automated Node.js extraction (300 iterations/scenario). Live browser telemetry on target hardware is scheduled for Phase 2 verification.
 
 ## 🚀 Quick Start (Zero Dependencies)
 1. Open the live deployment at [https://teteumgbh.github.io/finsec-sentinel/](https://teteumgbh.github.io/finsec-sentinel/) or open `index.html` locally in any modern browser.
-2. Click **⚡ Run 7-Scenario MSP Benchmark** to watch the circuit breaker and DLP shield process the full incident batch, or load any scenario and click **🛡️ Inspect via FinSec Sentinel**.
+2. Click **⚡ Run 10-Scenario Benchmark** to watch the circuit breaker and DLP shield process the full incident batch, or load any scenario and click **🛡️ Inspect via FinSec Sentinel**.
 
 ## 📄 License
 MIT License — Created by Matheus Filipe Ferreira Lima (`@teteumgbh`).
@@ -87,12 +90,38 @@ Sentinel statuses.)
 
 | Check | Result |
 |---|---|
-| Original 7 scenarios — regression vs v1.0 | **IDENTICAL**: 1,069 → 181 chars (83.1%), 123,681 → 546 billable tokens (99.6%), US$1.6684 saved per batch |
+| Original 7 scenarios — regression vs v1.0 | **IDENTICAL**: 1,069 → 181 chars (83.1%), 123,681 → 546 billable tokens (99.6%), US$0.4172 saved per batch at Gemini Flash rates (US$1.6684 at the Nov 7 Bedrock baseline — Appendix A) |
 | S8 In-scope FinOps query (`ce:GetCostAndUsage`, us-east-1) | **PROVEN_REACHABLE 300/300** |
 | S9 Privilege escalation outside task scope | **BLOCKED_UNREACHABLE 300/300** (final `RED_UNREACHABLE`) |
 | S10 Ambiguous environment (prod) | **ESCALATED_TO_STAGE_2 300/300** |
-| All 10 scenarios | 1,373 → 353 chars (74.3%); 124,508 → 1,090 tokens (99.1%); US$1.6722 saved per batch |
+| All 10 scenarios | 1,373 → 353 chars (74.3%); 124,508 → 1,090 tokens (99.1%); US$0.4182 saved per batch at Gemini Flash rates (US$1.6722 at the Bedrock baseline — Appendix A) |
 | Latency | L2.5 step median ~0.009–0.012 ms; full pipeline medians 0.0007–0.0133 ms |
 
 Reproduce: `node benchmark-v1.2.mjs` (writes `benchmark-raw-log.json` and a
 single-pass `audit-ledger.json`).
+
+## Appendix A — AWS MSP / Bedrock Baseline (Nov 7, 2026)
+
+The original benchmark, as published when FinSec Sentinel was built for the AWS MSP AI Hackathon, priced on Amazon Bedrock Claude 3.5 Sonnet (`$0.003 / 1K input tokens`, `$0.015 / 1K output tokens`). Preserved verbatim — history is recorded, not erased. (The original `benchmark-raw-log.json` is preserved in this repository's git history.)
+
+| Scenario | Sentinel Status | Input Payload (chars) | Sent to Cloud (chars) | Unchecked Billable Tokens | Actual Billed Tokens | USD Saved / Incident | Median Latency |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **1. Clean Ticket Triage (1 step)** | `GREEN_FORWARDED` | 162 | 118 | 291 | 280 | $0.00003 | 0.0059 ms |
+| **2. AWS IAM Key Leak (1 step)** | `RED_DLP_BLOCK` | 171 | 0 | 293 | 0 | $0.00388 | 0.0014 ms |
+| **3. Agent Ping-Pong Loop (250 steps)** | `AMBER_LOOP_KILLED` | 132 | 0 | 70,750 | 0 | $0.96225 | 0.0019 ms |
+| **4. Bearer JWT Leak (1 step)** | `RED_DLP_BLOCK` | 169 | 0 | 293 | 0 | $0.00388 | 0.0020 ms |
+| **5. Recursive Retry Storm (180 steps)** | `AMBER_LOOP_KILLED` | 143 | 0 | 51,480 | 0 | $0.69444 | 0.0020 ms |
+| **6. Verbose CloudWatch Dump (1 step)** | `GREEN_FORWARDED` | 163 | 63 | 291 | 266 | $0.00007 | 0.0032 ms |
+| **7. Private RSA Key in State (1 step)** | `RED_DLP_BLOCK` | 129 | 0 | 283 | 0 | $0.00385 | 0.0010 ms |
+
+Baseline totals: `1,069 -> 181 chars` (83.1%); `123,681 -> 546 tokens` (99.6%); **$1.6684 saved per 7-incident batch** ($1,668.40 per 1,000 cycles); DLP block 3/3; loop containment 2/2.
+
+## Appendix B — #BuildHybridAI / Firebase AI Logic Handoff (Nov 9, 2026)
+
+Migration record. On Nov 9, 2026 the AWS MSP AI Hackathon's eligibility rules (Official Rules §3: entrants must be employed by / authorized to act for an AWS Partner Network organization) closed that competition to this solo entrant, and the team re-aimed FinSec Sentinel at the **#BuildHybridAI Hackathon** alongside The Safe Latch.
+
+What changed — and only this:
+- The engine's two pricing constants (`INPUT_RATE_PER_1K`, `OUTPUT_RATE_PER_1K`) were swapped from the Bedrock baseline to **Gemini 3.8 Flash** rates (`$0.00075 / $0.00375` per 1K tokens), and the panel's framing (badge, subtitle, telemetry labels, migration banner) was updated. No logic, scenario, threshold or verdict changed.
+- The harness regression check was re-based to the Gemini USD figure, with the Bedrock figure kept in its comment.
+
+Identity proof (executed, `node benchmark-v1.2.mjs`, 300 iterations/scenario): **all 10 scenarios PASS 300/300**; character and token figures are **identical** to the Bedrock-priced runs — original 7: `1,069 -> 181 chars`, `123,681 -> 546 tokens`; all 10: `1,373 -> 353 chars`, `124,508 -> 1,090 tokens`. Only the USD column moved, by exactly ×0.25 (both Gemini Flash rates are one quarter of the Bedrock baseline rates): **$0.4172 saved per 7-incident batch** and **$0.4182 across all 10 scenarios**.
