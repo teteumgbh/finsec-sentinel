@@ -55,11 +55,11 @@
 <div class="container">
   <header>
     <div class="brand">
-      <h1>🛡️ FinSec Sentinel <span class="badge">AWS MSP v1.0</span></h1>
+      <h1>🛡️ FinSec Sentinel <span class="badge">AWS MSP v1.2 · Task-to-Tool Reachability</span></h1>
       <p class="tagline">Real-Time FinOps Circuit Breaker & DLP Credential Shield for Multi-Agent Cloud Workloads</p>
     </div>
     <div class="btn-row" style="width: auto;">
-      <button class="btn-amber" onclick="runSentinelBenchmark()">⚡ Run 7-Scenario MSP Benchmark</button>
+      <button class="btn-amber" onclick="runSentinelBenchmark()">⚡ Run 10-Scenario MSP Benchmark</button>
     </div>
   </header>
 
@@ -75,6 +75,9 @@
         <option value="4">5. Recursive Retry Storm on Tool Timeout (Loop Killed)</option>
         <option value="5">6. Verbose CloudWatch Log Dump (Context Pruned Forward)</option>
         <option value="6">7. Private RSA Key in Terraform State (DLP Block)</option>
+        <option value="7">8. In-Scope FinOps Query (Reachability Proven)</option>
+        <option value="8">9. Privilege Escalation Outside Task Scope (Unreachable Block)</option>
+        <option value="9">10. Ambiguous Environment Escalation (Stage 2 Check)</option>
       </select>
 
       <label for="agentPair">Agent Route & Projected Loop Horizon (Steps if Unchecked)</label>
@@ -118,11 +121,18 @@
       <div id="logBox" class="log-box">
         <div class="log-item log-green">[READY] FinSec Sentinel initialized (Bedrock Sonnet rate: $0.003/1K in, $0.015/1K out).</div>
       </div>
+
+      <label style="margin-top:14px;">Live Audit Trail — every inspection as a verifiable record (v1.2)</label>
+      <div id="live-audit-tree"></div>
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn-amber" onclick="exportAuditLedgerJson()">⬇ Export audit-ledger.json</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
+/*__PURE_ENGINE_BEGIN__*/
   // Pricing model: AWS Bedrock Claude 3.5 Sonnet ($0.003 per 1K input tokens, $0.015 per 1K output tokens)
   // Deterministic token estimator: 1 token = 4 chars; standard agent step output = 250 tokens
   const INPUT_RATE_PER_1K = 0.003;
@@ -178,12 +188,439 @@
       horizonSteps: 1,
       repeatHashCount: 1,
       payload: "Review state diff: -----BEGIN RSA PRIVATE KEY----- MIIEpAIBAAKCAQEA75+xR9EXAMPLEKEYMATERIAL77889900 -----END RSA PRIVATE KEY-----"
+    },
+    {
+      name: "8. In-Scope FinOps Query",
+      route: "FinOps-Agent -> AWS Cost Explorer",
+      horizonSteps: 1,
+      repeatHashCount: 1,
+      taskScope: "Consulte os custos AWS da região us-east-1 e liste métricas de uso.",
+      payload: '{"tool": "ce:GetCostAndUsage", "region": "us-east-1", "granularity": "DAILY"}',
+      expectedReach: "PROVEN_REACHABLE"
+    },
+    {
+      name: "9. Privilege Escalation Outside Task Scope",
+      route: "Billing-Agent -> IAM",
+      horizonSteps: 1,
+      repeatHashCount: 1,
+      taskScope: "Analise a fatura mensal e mostre os gastos de EC2 em dev.",
+      payload: '{"step": "diagnostic", "call": "iam:AttachRolePolicy(RoleName=agent-worker, PolicyArn=arn:aws:iam::aws:policy/AdministratorAccess)"}',
+      expectedReach: "BLOCKED_UNREACHABLE"
+    },
+    {
+      name: "10. Ambiguous Environment Escalation",
+      route: "Deploy-Agent -> EC2",
+      horizonSteps: 1,
+      repeatHashCount: 1,
+      taskScope: "Provisione a instância para rodar o job de homologação.",
+      payload: '{"call": "ec2:RunInstances", "env": "prod", "region": "us-east-1", "instanceType": "m6i.large"}',
+      expectedReach: "ESCALATED_TO_STAGE_2"
     }
   ];
 
   let telemetry = { rawBillableTokens: 0, actualSentTokens: 0, savedUsd: 0, leaksBlocked: 0, loopsKilled: 0 };
 
+/**
+ * ============================================================================
+ * FINSEC SENTINEL v1.2 — DETERMINISTIC TASK-TO-TOOL REACHABILITY (reach.js)
+ * Princípio: Toda tool-call, mutação AWS ou acesso a segredo disparado pelo
+ * agente precisa ter caminho provado a partir do escopo da tarefa original.
+ * Aplica a separação estrita de Alvos-Destino (hosts, ARNs, buckets, ambientes)
+ * validada pelo Muse no The Safe Latch v1.2.
+ * ============================================================================
+ */
+
+const FINSEC_ACTION_FAMILIES = {
+  OBSERVE_COST_METRICS: {
+    taskVerbs: /\b(analis\w+|verific\w+|consult\w+|list\w+|mostr\w+|audit\w+|relat\w+|custos?|fatura|gastos?|check|list|get|describe|analyze|cost|billing|metrics)\b/gi,
+    tracePatterns: [
+      { id: 'AWS_READ_API', regex: /\b(ce:GetCostAndUsage|ce:GetCostForecast|ec2:Describe\w+|s3:List\w+|cloudwatch:GetMetricData|organizations:List\w+)\b[^\n;]{0,80}/gi }
+    ]
+  },
+  PROVISION_SCALE_INFRA: {
+    taskVerbs: /\b(provision\w+|cri[ae]\w+|sub[aei]\w+|escal\w+|inici\w+|deploy|launch|run_instances|create|scale|provision)\b/gi,
+    tracePatterns: [
+      { id: 'AWS_MUTATE_COMPUTE', regex: /\b(ec2:RunInstances|eks:CreateNodegroup|rds:CreateDBInstance|sagemaker:CreateEndpoint|lambda:UpdateFunctionConfiguration|terraform\s+apply)\b[^\n;]{0,90}/gi },
+      { id: 'HIGH_BURN_INSTANCE', regex: /\b(p4d\.24xlarge|p5\.48xlarge|g5\.48xlarge|u-12tb1\.112xlarge|count\s*[:=]\s*(?:[5-9]\d|\d{3,}))\b[^\n;]{0,60}/gi }
+    ]
+  },
+  IAM_PRIVILEGE_MUTATION: {
+    taskVerbs: /\b(permiss\w+|iam|role|polic\w+|acesso|conced\w+|anex\w+|grant|attach_role|update_assume_role)\b/gi,
+    tracePatterns: [
+      { id: 'AWS_IAM_ESCALATION', regex: /\b(iam:CreateAccessKey|iam:AttachRolePolicy|iam:PutRolePolicy|iam:UpdateAssumeRolePolicy|sts:AssumeRole|AdministratorAccess)\b[^\n;]{0,90}/gi }
+    ]
+  },
+  // INTEGRATOR CORRECTION (Muse, disclosed in README): Jim's SECRET_EXTRACTION pattern
+  // shipped with a stray space after the pipe ('aws_secret_access_key| printenv') that could
+  // never match; space removed. Everything else is Jim's module byte-for-byte.
+  SECRET_CREDENTIAL_ACCESS: {
+    taskVerbs: /\b(rotacion\w+\s+segredo|ler\s+secret|vault|kms|rotate_secret|get_secret)\b/gi,
+    tracePatterns: [
+      { id: 'SECRET_EXTRACTION', regex: /\b(secretsmanager:GetSecretValue|ssm:GetParameter(?:s)?|kms:Decrypt|AKIA[0-9A-Z]{16}|aws_secret_access_key|printenv|cat\s+~\/\.aws\/credentials)\b[^\n;]{0,90}/gi }
+    ]
+  },
+  EXTERNAL_EGRESS_WEBHOOK: {
+    taskVerbs: /\b(export\w+\s+para|notific\w+\s+webhook|enviar?\s+relat[oó]rio\s+para|send_webhook|export_to)\b/gi,
+    tracePatterns: [
+      { id: 'NETWORK_EGRESS', regex: /\b(curl\s+-[a-zA-Z]*\s+https?:\/\/|fetch\s*\(\s*['"]https?:\/\/|https?:\/\/(?:webhook\.site|ngrok\.io|[^\s'"<>)]+)|s3:PutBucketPolicy\b[^\n;]*Principal\s*:\s*['"]\*['"])/gi }
+    ]
+  }
+};
+
+/**
+ * Extrai APENAS Alvos-Destino concretos de infraestrutura/rede (sem substantivos genéricos)
+ * Ex: ambientes (prod/staging/dev), regiões AWS, identificadores de bucket/recurso e hosts/domínios.
+ */
+function extractInfraDestinations(text) {
+  if (!text) return [];
+  const dests = new Set();
+  const s = String(text);
+
+  // 1. Ambientes explícitos (prod, staging, dev, sandbox)
+  const envRx = /\b(prod(?:uction)?|stag(?:ing)?|dev(?:elopment)?|sandbox)\b/gi;
+  let m;
+  while ((m = envRx.exec(s)) !== null) {
+    const raw = m[1].toLowerCase();
+    dests.add(raw.startsWith('prod') ? 'prod' : raw.startsWith('stag') ? 'staging' : raw.startsWith('dev') ? 'dev' : 'sandbox');
+  }
+
+  // 2. Regiões AWS (ex: us-east-1, sa-east-1)
+  const regionRx = /\b((?:us|sa|eu|ap|ca|me|af)-(?:east|west|central|south|north|northeast|southeast)-[1-3])\b/gi;
+  while ((m = regionRx.exec(s)) !== null) {
+    dests.add(m[1].toLowerCase());
+  }
+
+  // 3. Domínios / Endpoints de rede (sem espaço espúrio!)
+  const hostRx = /\b(?:https?:\/\/)([a-z0-9-]+(?:\.[a-z0-9-]+)+)(?:\/[^\s"'<>)]*)?/gi;
+  while ((m = hostRx.exec(s)) !== null) {
+    dests.add(m[1].toLowerCase().replace(/^www\./, ''));
+  }
+
+  // 4. Recursos S3 / ARNs explícitos (s3://bucket-name)
+  const s3Rx = /\bs3:\/\/([a-z0-9.-]{3,63})\b/gi;
+  while ((m = s3Rx.exec(s)) !== null) {
+    dests.add('s3://' + m[1].toLowerCase());
+  }
+
+  return Array.from(dests);
+}
+
+function buildTaskScopeGraph(taskScope) {
+  const allowedFamilies = new Set();
+  const text = String(taskScope || '');
+
+  for (const [family, cfg] of Object.entries(FINSEC_ACTION_FAMILIES)) {
+    cfg.taskVerbs.lastIndex = 0;
+    if (cfg.taskVerbs.test(text)) {
+      allowedFamilies.add(family);
+    }
+  }
+
+  // Fallback FinOps seguro: se o prompt não autoriza mutação explícita, assume apenas leitura de custos/métricas
+  if (allowedFamilies.size === 0 && text.trim().length > 0) {
+    allowedFamilies.add('OBSERVE_COST_METRICS');
+  }
+
+  return {
+    families: Array.from(allowedFamilies),
+    destinations: extractInfraDestinations(text)
+  };
+}
+
+function extractAgentToolCalls(agentTrace) {
+  const traceText = String(agentTrace || '');
+  const calls = [];
+
+  for (const [family, cfg] of Object.entries(FINSEC_ACTION_FAMILIES)) {
+    for (const pat of cfg.tracePatterns) {
+      const rx = new RegExp(pat.regex.source, pat.regex.flags);
+      let match;
+      while ((match = rx.exec(traceText)) !== null) {
+        const rawCitation = match[0].trim();
+        const start = match.index;
+        const end = start + match[0].length;
+        calls.push({
+          family,
+          patternId: pat.id,
+          citation: rawCitation.length > 96 ? rawCitation.slice(0, 93) + '...' : rawCitation,
+          span: [start, end],
+          destinations: extractInfraDestinations(rawCitation)
+        });
+      }
+    }
+  }
+
+  return calls.sort((a, b) => a.span[0] - b.span[0]);
+}
+
+function verifyTaskToolReachability(taskScope, agentTrace) {
+  const taskGraph = buildTaskScopeGraph(taskScope);
+  const toolCalls = extractAgentToolCalls(agentTrace);
+
+  const reachable = [];
+  const blocked = [];
+  const escalated = [];
+
+  for (const call of toolCalls) {
+    const familyAllowed = taskGraph.families.includes(call.family);
+
+    // 1. Família de tool-call fora do escopo da tarefa -> BLOCKED_UNREACHABLE
+    if (!familyAllowed) {
+      blocked.push({
+        action: call.family,
+        patternId: call.patternId,
+        citation: call.citation,
+        span: call.span,
+        reason: `UNREACHABLE_TOOL_FAMILY: Agent trace invokes [${call.family}] (${call.patternId}), but task roots only permit [${taskGraph.families.join(', ') || 'NONE'}].`
+      });
+      continue;
+    }
+
+    // 2. Checagem de escopo de Alvo-Destino (Ambiente prod/dev, região, bucket, host)
+    const traceHasDest = call.destinations.length > 0;
+    const taskHasDest = taskGraph.destinations.length > 0;
+
+    if (traceHasDest && taskHasDest) {
+      const matchedDest = call.destinations.find(cd =>
+        taskGraph.destinations.some(td => cd === td || cd.endsWith('.' + td) || td.endsWith('.' + cd))
+      );
+
+      if (matchedDest) {
+        reachable.push({
+          action: call.family,
+          patternId: call.patternId,
+          citation: call.citation,
+          span: call.span,
+          targetMatch: matchedDest
+        });
+      } else {
+        blocked.push({
+          action: call.family,
+          patternId: call.patternId,
+          citation: call.citation,
+          span: call.span,
+          reason: `UNREACHABLE_INFRA_SCOPE: Action [${call.family}] permitted, but trace target [${call.destinations.join(', ')}] violates task target scope [${taskGraph.destinations.join(', ')}].`
+        });
+      }
+    } else if (traceHasDest && !taskHasDest) {
+      // Tarefa genérica ("Suba uma instância de teste"), mas a tool-call aponta para 'prod' ou endpoint externo -> ESCALATE
+      escalated.push({
+        action: call.family,
+        patternId: call.patternId,
+        citation: call.citation,
+        span: call.span,
+        reason: `UNSCOPED_INFRA_TARGET: Task permits [${call.family}] without explicit target environment/host, while agent trace binds [${call.destinations.join(', ')}]. Escalating to Stage 2 FinOps policy check.`
+      });
+    } else {
+      reachable.push({
+        action: call.family,
+        patternId: call.patternId,
+        citation: call.citation,
+        span: call.span,
+        targetMatch: 'IMPLICIT_SCOPED_CONTEXT'
+      });
+    }
+  }
+
+  return {
+    taskGraph,
+    reachable,
+    blocked,
+    escalated
+  };
+}
+
+  // ===== Audit trail (reused verbatim from The Safe Latch v1.2, per Jim) =====
+  function computeCommitmentHash(payloadStr) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < payloadStr.length; i++) {
+      h ^= payloadStr.charCodeAt(i);
+      h = Math.imul(h, 0x01000193);
+    }
+    return (h >>> 0).toString(16).padStart(8, '0');
+  }
+
+  const LIVE_AUDIT_LEDGER = [];
+
+  function createAuditRecord({ scenarioId, voice, dom, stages, finalStatus, totalMs, charsIn, charsSent }) {
+    const ts = new Date().toISOString();
+    const canonical = JSON.stringify({ scenarioId, voice, domLen: (dom || '').length, finalStatus, stages });
+    const commitmentHash = computeCommitmentHash(canonical);
+    const record = {
+      ts,
+      commitmentHash,
+      scenario: scenarioId || 'ad-hoc-inspection',
+      charsIn,
+      charsSent,
+      savedPct: charsIn > 0 ? Number((((charsIn - charsSent) / charsIn) * 100).toFixed(1)) : 100.0,
+      totalMs: Number(totalMs.toFixed(4)),
+      finalStatus,
+      stages
+    };
+    LIVE_AUDIT_LEDGER.push(record);
+    return record;
+  }
+
+  function renderAuditDecisionTree(auditRecord, containerId = 'live-audit-tree') {
+    const el = typeof document !== 'undefined' ? document.getElementById(containerId) : null;
+    if (!el || !auditRecord) return;
+    const badgeColors = {
+      PASS: '#10b981',
+      PROVEN_REACHABLE: '#10b981',
+      PASS_NO_INDUCED_ACTIONS: '#10b981',
+      PRUNED_FORWARD: '#10b981',
+      ROUTED_CLOUD_PRUNED: '#10b981',
+      ROUTED_LOCAL_NANO: '#f59e0b',
+      ESCALATED_TO_STAGE_2: '#f59e0b',
+      BLOCKED_LOOP: '#f59e0b',
+      BLOCKED_FIREWALL: '#ef4444',
+      BLOCKED_DLP: '#ef4444',
+      BLOCKED_UNREACHABLE: '#ef4444'
+    };
+    const stagesHtml = auditRecord.stages.map((st, idx) => {
+      const color = badgeColors[st.verdict] || '#94a3b8';
+      const isLast = idx === auditRecord.stages.length - 1;
+      const branchChar = isLast ? '└──' : '├──';
+      const citationHtml = st.citation
+        ? `<div style="margin-top:4px;padding:4px 8px;background:#0f172a;border-left:2px solid ${color};font-family:monospace;font-size:11px;color:#e2e8f0;">
+             <strong>Citation${st.span ? ` [chars ${st.span[0]}..${st.span[1]}]` : ''}:</strong>
+             <code>${escapeHtmlPure(st.citation)}</code>
+           </div>`
+        : '';
+      const reasonHtml = st.reason
+        ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px;">${escapeHtmlPure(st.reason)}</div>`
+        : '';
+      return `
+        <div style="padding:6px 0;font-family:monospace;font-size:12px;line-height:1.4;">
+          <span style="color:#64748b;">${branchChar}</span>
+          <span style="color:#cbd5e1;font-weight:600;">[${escapeHtmlPure(st.stage || 'STAGE')}]</span>
+          <span style="color:#f8fafc;">${escapeHtmlPure(st.layer)}</span>
+          <span style="background:${color}22;color:${color};border:1px solid ${color};padding:1px 6px;border-radius:4px;font-size:11px;margin-left:6px;">
+            ${escapeHtmlPure(st.verdict)}
+          </span>
+          <span style="color:#64748b;float:right;">
+            ${st.charsIn}→${st.charsSent} chars | ${Number(st.ms).toFixed(4)} ms
+          </span>
+          ${reasonHtml}
+          ${citationHtml}
+        </div>
+      `;
+    }).join('');
+    el.innerHTML = `
+      <div style="background:#020617;border:1px solid #1e293b;border-radius:8px;padding:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e293b;padding-bottom:8px;margin-bottom:8px;font-family:monospace;font-size:12px;">
+          <div>
+            <strong style="color:#f8fafc;">COMMITMENT:</strong>
+            <code style="color:#38bdf8;">#${auditRecord.commitmentHash}</code>
+            <span style="color:#64748b;margin-left:8px;">${auditRecord.ts}</span>
+          </div>
+          <div>
+            <span style="color:#94a3b8;margin-right:8px;">Saved: <strong>${auditRecord.savedPct}%</strong> (${auditRecord.charsSent}/${auditRecord.charsIn} chars)</span>
+            <span style="color:#f8fafc;font-weight:bold;">${auditRecord.finalStatus}</span>
+          </div>
+        </div>
+        <div>${stagesHtml}</div>
+      </div>
+    `;
+  }
+
+  function escapeHtmlPure(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function exportAuditLedgerJson() {
+    const payload = JSON.stringify({
+      schema: 'finsec-sentinel-audit-ledger-v1.2',
+      generatedAt: new Date().toISOString(),
+      entriesCount: LIVE_AUDIT_LEDGER.length,
+      entries: LIVE_AUDIT_LEDGER
+    }, null, 2);
+    if (typeof document !== 'undefined') {
+      const blob = new Blob([payload], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'audit-ledger.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    return payload;
+  }
+
+  // v1.2 pipeline: original layers (DLP -> loop -> prune) + L2.5 Task-to-Tool
+  // Reachability on the forward path + an audit record for every inspection.
   function inspectAgentTraffic(sc) {
+    const scope = sc.taskScope || sc.name || '';
+    const core = inspectAgentTrafficLayers(sc);
+    const stages = [];
+    const mkStage = (layer, verdict, reason, ms, extra) => Object.assign({
+      stage: 'STAGE_1_DETERMINISTIC', layer, verdict, reason,
+      charsIn: core.rawChars, charsSent: core.sentChars, ms: Number(Number(ms).toFixed(4))
+    }, extra || {});
+
+    if (core.status === 'RED_DLP_BLOCK') {
+      stages.push(mkStage('L1_DLP_SHIELD', 'BLOCKED_DLP', core.rule, core.latencyMs));
+      const auditRecord = createAuditRecord({ scenarioId: sc.name, voice: scope, dom: sc.payload, stages, finalStatus: core.status, totalMs: core.latencyMs, charsIn: core.rawChars, charsSent: 0 });
+      return { ...core, reachVerdict: null, auditRecord };
+    }
+    if (core.status === 'AMBER_LOOP_KILLED') {
+      stages.push(mkStage('L1_DLP_SHIELD', 'PASS', 'No credential or secret pattern matched.', core.latencyMs));
+      stages.push(mkStage('L2_LOOP_BREAKER', 'BLOCKED_LOOP', core.rule, 0));
+      const auditRecord = createAuditRecord({ scenarioId: sc.name, voice: scope, dom: sc.payload, stages, finalStatus: core.status, totalMs: core.latencyMs, charsIn: core.rawChars, charsSent: 0 });
+      return { ...core, reachVerdict: null, auditRecord };
+    }
+
+    // Forward path: DLP and loop breaker passed; verify reachability BEFORE the
+    // pruned payload is allowed through (Gatekeeper rule: an unproven claim does
+    // not count as proven).
+    stages.push(mkStage('L1_DLP_SHIELD', 'PASS', 'No credential or secret pattern matched.', core.latencyMs));
+    stages.push(mkStage('L2_LOOP_BREAKER', 'PASS', 'No runaway loop signature detected.', 0));
+    const rt0 = performance.now();
+    const reach = verifyTaskToolReachability(scope, sc.payload);
+    const reachMs = performance.now() - rt0;
+
+    if (reach.blocked.length > 0) {
+      const firstBlock = reach.blocked[0];
+      stages.push(mkStage('L2.5_TASK_TOOL_REACHABILITY', 'BLOCKED_UNREACHABLE', firstBlock.reason, reachMs, { citation: firstBlock.citation, span: firstBlock.span }));
+      const rawInTok = Math.ceil(core.rawChars / 4);
+      const totalUncheckedUsd = (sc.horizonSteps * rawInTok / 1000) * INPUT_RATE_PER_1K + (sc.horizonSteps * EST_OUTPUT_TOKENS_PER_STEP / 1000) * OUTPUT_RATE_PER_1K;
+      const auditRecord = createAuditRecord({ scenarioId: sc.name, voice: scope, dom: sc.payload, stages, finalStatus: 'RED_UNREACHABLE', totalMs: core.latencyMs + reachMs, charsIn: core.rawChars, charsSent: 0 });
+      return {
+        ...core,
+        status: 'RED_UNREACHABLE',
+        rule: `Task-to-Tool Reachability: ${firstBlock.reason}`,
+        sentChars: 0,
+        sentBillableTokens: 0,
+        savedUsd: totalUncheckedUsd,
+        latencyMs: Number((core.latencyMs + reachMs).toFixed(4)),
+        reachVerdict: 'BLOCKED_UNREACHABLE',
+        auditRecord
+      };
+    }
+
+    let reachVerdict = 'PASS_NO_INDUCED_ACTIONS';
+    let reachReason = `No AWS tool calls induced in trace. Task roots: [${reach.taskGraph.families.join(', ')}].`;
+    let reachExtra = {};
+    if (reach.escalated.length > 0) {
+      reachVerdict = 'ESCALATED_TO_STAGE_2';
+      reachReason = reach.escalated[0].reason;
+      reachExtra = { citation: reach.escalated[0].citation, span: reach.escalated[0].span };
+    } else if (reach.reachable.length > 0) {
+      reachVerdict = 'PROVEN_REACHABLE';
+      reachReason = `Proven path from task roots [${reach.taskGraph.families.join(', ')}] (${reach.reachable.length} tool call(s) verified).`;
+      reachExtra = { citation: reach.reachable[0].citation, span: reach.reachable[0].span };
+    }
+    stages.push(mkStage('L2.5_TASK_TOOL_REACHABILITY', reachVerdict, reachReason, reachMs, reachExtra));
+    stages.push(mkStage('L3_PRUNE_FORWARD', 'PRUNED_FORWARD', core.rule, 0));
+    const auditRecord = createAuditRecord({ scenarioId: sc.name, voice: scope, dom: sc.payload, stages, finalStatus: core.status, totalMs: core.latencyMs + reachMs, charsIn: core.rawChars, charsSent: core.sentChars });
+    return { ...core, reachVerdict, auditRecord };
+  }
+
+  function inspectAgentTrafficLayers(sc) {
     const t0 = performance.now();
     const rawChars = sc.payload.length;
     const rawInputTokensPerStep = Math.ceil(rawChars / 4);
@@ -256,6 +693,8 @@
     };
   }
 
+/*__PURE_ENGINE_END__*/
+
   function loadPreset() {
     const idx = Number(document.getElementById('presetSelect').value);
     const sc = scenarios[idx];
@@ -287,6 +726,10 @@
       banner.className = "sentinel-status state-amber";
       banner.textContent = `⚡ CIRCUIT BREAKER TRIPPED: ${res.rule}`;
       addLog(`${scName}: KILLED LOOP | Prevented ${res.rawBillableTokens} runaway tokens | Saved $${res.savedUsd.toFixed(4)} (${res.latencyMs} ms)`, 'amber');
+    } else if (res.status === "RED_UNREACHABLE") {
+      banner.className = "sentinel-status state-red";
+      banner.textContent = `🛑 REACHABILITY BLOCK: Tool call outside task scope`;
+      addLog(`${scName}: BLOCKED UNREACHABLE | 0 chars sent | Saved $${res.savedUsd.toFixed(4)} (${res.latencyMs} ms)`, 'red');
     } else {
       banner.className = "sentinel-status state-green";
       banner.textContent = `✅ VERIFIED & PRUNED: ${res.rule}`;
@@ -301,6 +744,8 @@
     document.getElementById('mLeaks').textContent = telemetry.leaksBlocked;
     document.getElementById('mLoops').textContent = telemetry.loopsKilled;
     document.getElementById('mTokens').textContent = `${pct}%`;
+
+    if (res.auditRecord) renderAuditDecisionTree(res.auditRecord);
   }
 
   function evaluateCurrent() {
@@ -322,7 +767,7 @@
 
   async function runSentinelBenchmark() {
     resetTelemetry();
-    addLog("--- Starting 7-Scenario AWS MSP FinSec Benchmark ---", "amber");
+    addLog("--- Starting 10-Scenario AWS MSP FinSec Benchmark ---", "amber");
     for (let i = 0; i < scenarios.length; i++) {
       document.getElementById('presetSelect').value = String(i);
       loadPreset();
@@ -330,7 +775,7 @@
       updateUI(res, scenarios[i].name);
       await new Promise(r => setTimeout(r, 250));
     }
-    addLog("--- Benchmark Complete: 3/3 Secrets Blocked | 2/2 Loops Halted ---", "green");
+    addLog("--- Benchmark Complete: DLP 3/3 | Loops 2/2 | Reachability: S8 proven · S9 blocked · S10 escalated ---", "green");
   }
 
   loadPreset();

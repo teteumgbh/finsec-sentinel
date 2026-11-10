@@ -1,100 +1,209 @@
 {
-  "rows": [
+  "project": "FinSec Sentinel",
+  "version": "v1.2-task-tool-reachability",
+  "generatedAt": "2026-11-10T03:26:30.577Z",
+  "iterationsPerScenario": 300,
+  "engine": "exact bytes extracted from index.html pure-engine markers",
+  "allPass": true,
+  "v10RegressionIdentical": true,
+  "scenarios": [
     {
-      "n": "1. Clean Ticket Triage",
-      "status": "GREEN_FORWARDED",
-      "rule": "Clean payload pruned (162 -> 118 chars)",
-      "rawChars": 162,
-      "sentChars": 118,
+      "scenario": "1. Clean Ticket Triage",
+      "expectedStatus": "GREEN_FORWARDED",
+      "statusCounts": {
+        "GREEN_FORWARDED": 300
+      },
+      "reachCounts": {
+        "PASS_NO_INDUCED_ACTIONS": 300
+      },
+      "pass": true,
+      "charsIn": 162,
+      "charsSent": 118,
       "rawBillableTokens": 291,
       "sentBillableTokens": 280,
-      "savedUsd": 0.00003,
-      "medianMs": 0.0059,
-      "avgMs": 0.0116
+      "savedUsd": 0,
+      "medianLatencyMs": 0.004,
+      "medianReachabilityStepMs": 0.0094
     },
     {
-      "n": "2. AWS IAM Key Leak",
-      "status": "RED_DLP_BLOCK",
-      "rule": "AWS Access Key ID",
-      "rawChars": 171,
-      "sentChars": 0,
+      "scenario": "2. AWS IAM Key Leak",
+      "expectedStatus": "RED_DLP_BLOCK",
+      "statusCounts": {
+        "RED_DLP_BLOCK": 300
+      },
+      "reachCounts": {
+        "N/A": 300
+      },
+      "pass": true,
+      "charsIn": 171,
+      "charsSent": 0,
       "rawBillableTokens": 293,
       "sentBillableTokens": 0,
-      "savedUsd": 0.00388,
-      "medianMs": 0.0014,
-      "avgMs": 0.0016
+      "savedUsd": 0.0039,
+      "medianLatencyMs": 0.0009,
+      "medianReachabilityStepMs": null
     },
     {
-      "n": "3. Runaway Agent Ping-Pong Loop",
-      "status": "AMBER_LOOP_KILLED",
-      "rule": "Semantic Ping-Pong / Retry Storm (250-step runaway halted at step 4)",
-      "rawChars": 132,
-      "sentChars": 0,
+      "scenario": "3. Runaway Agent Ping-Pong Loop",
+      "expectedStatus": "AMBER_LOOP_KILLED",
+      "statusCounts": {
+        "AMBER_LOOP_KILLED": 300
+      },
+      "reachCounts": {
+        "N/A": 300
+      },
+      "pass": true,
+      "charsIn": 132,
+      "charsSent": 0,
       "rawBillableTokens": 70750,
       "sentBillableTokens": 0,
-      "savedUsd": 0.96225,
-      "medianMs": 0.0019,
-      "avgMs": 0.0026
+      "savedUsd": 0.9623,
+      "medianLatencyMs": 0.0013,
+      "medianReachabilityStepMs": null
     },
     {
-      "n": "4. Bearer JWT + Webhook Leak",
-      "status": "RED_DLP_BLOCK",
-      "rule": "Bearer JWT Token",
-      "rawChars": 169,
-      "sentChars": 0,
+      "scenario": "4. Bearer JWT + Webhook Leak",
+      "expectedStatus": "RED_DLP_BLOCK",
+      "statusCounts": {
+        "RED_DLP_BLOCK": 300
+      },
+      "reachCounts": {
+        "N/A": 300
+      },
+      "pass": true,
+      "charsIn": 169,
+      "charsSent": 0,
       "rawBillableTokens": 293,
       "sentBillableTokens": 0,
-      "savedUsd": 0.00388,
-      "medianMs": 0.002,
-      "avgMs": 0.0026
+      "savedUsd": 0.0039,
+      "medianLatencyMs": 0.0013,
+      "medianReachabilityStepMs": null
     },
     {
-      "n": "5. Recursive Retry Storm",
-      "status": "AMBER_LOOP_KILLED",
-      "rule": "Semantic Ping-Pong / Retry Storm (180-step runaway halted at step 5)",
-      "rawChars": 143,
-      "sentChars": 0,
+      "scenario": "5. Recursive Retry Storm",
+      "expectedStatus": "AMBER_LOOP_KILLED",
+      "statusCounts": {
+        "AMBER_LOOP_KILLED": 300
+      },
+      "reachCounts": {
+        "N/A": 300
+      },
+      "pass": true,
+      "charsIn": 143,
+      "charsSent": 0,
       "rawBillableTokens": 51480,
       "sentBillableTokens": 0,
-      "savedUsd": 0.69444,
-      "medianMs": 0.002,
-      "avgMs": 0.004
+      "savedUsd": 0.6944,
+      "medianLatencyMs": 0.0007,
+      "medianReachabilityStepMs": null
     },
     {
-      "n": "6. Verbose CloudWatch Log Dump",
-      "status": "GREEN_FORWARDED",
-      "rule": "Clean payload pruned (163 -> 63 chars)",
-      "rawChars": 163,
-      "sentChars": 63,
+      "scenario": "6. Verbose CloudWatch Log Dump",
+      "expectedStatus": "GREEN_FORWARDED",
+      "statusCounts": {
+        "GREEN_FORWARDED": 300
+      },
+      "reachCounts": {
+        "PASS_NO_INDUCED_ACTIONS": 300
+      },
+      "pass": true,
+      "charsIn": 163,
+      "charsSent": 63,
       "rawBillableTokens": 291,
       "sentBillableTokens": 266,
-      "savedUsd": 0.00007,
-      "medianMs": 0.0032,
-      "avgMs": 0.0037
+      "savedUsd": 0.0001,
+      "medianLatencyMs": 0.0028,
+      "medianReachabilityStepMs": 0.0084
     },
     {
-      "n": "7. Private Key in Terraform State",
-      "status": "RED_DLP_BLOCK",
-      "rule": "PEM Private Key",
-      "rawChars": 129,
-      "sentChars": 0,
+      "scenario": "7. Private Key in Terraform State",
+      "expectedStatus": "RED_DLP_BLOCK",
+      "statusCounts": {
+        "RED_DLP_BLOCK": 300
+      },
+      "reachCounts": {
+        "N/A": 300
+      },
+      "pass": true,
+      "charsIn": 129,
+      "charsSent": 0,
       "rawBillableTokens": 283,
       "sentBillableTokens": 0,
-      "savedUsd": 0.00385,
-      "medianMs": 0.001,
-      "avgMs": 0.0011
+      "savedUsd": 0.0038,
+      "medianLatencyMs": 0.0007,
+      "medianReachabilityStepMs": null
+    },
+    {
+      "scenario": "8. In-Scope FinOps Query",
+      "expectedStatus": "GREEN_FORWARDED",
+      "statusCounts": {
+        "GREEN_FORWARDED": 300
+      },
+      "reachCounts": {
+        "PROVEN_REACHABLE": 300
+      },
+      "pass": true,
+      "charsIn": 77,
+      "charsSent": 77,
+      "rawBillableTokens": 270,
+      "sentBillableTokens": 270,
+      "savedUsd": 0,
+      "medianLatencyMs": 0.0024,
+      "medianReachabilityStepMs": 0.0123
+    },
+    {
+      "scenario": "9. Privilege Escalation Outside Task Scope",
+      "expectedStatus": "RED_UNREACHABLE",
+      "statusCounts": {
+        "RED_UNREACHABLE": 300
+      },
+      "reachCounts": {
+        "BLOCKED_UNREACHABLE": 300
+      },
+      "pass": true,
+      "charsIn": 132,
+      "charsSent": 0,
+      "rawBillableTokens": 283,
+      "sentBillableTokens": 0,
+      "savedUsd": 0.0038,
+      "medianLatencyMs": 0.0133,
+      "medianReachabilityStepMs": 0.0109
+    },
+    {
+      "scenario": "10. Ambiguous Environment Escalation",
+      "expectedStatus": "GREEN_FORWARDED",
+      "statusCounts": {
+        "GREEN_FORWARDED": 300
+      },
+      "reachCounts": {
+        "ESCALATED_TO_STAGE_2": 300
+      },
+      "pass": true,
+      "charsIn": 95,
+      "charsSent": 95,
+      "rawBillableTokens": 274,
+      "sentBillableTokens": 274,
+      "savedUsd": 0,
+      "medianLatencyMs": 0.0017,
+      "medianReachabilityStepMs": 0.0088
     }
   ],
-  "totals": {
-    "rawChars": 1069,
-    "sentChars": 181,
-    "charReductionPct": 83.1,
+  "totalsOriginal7": {
+    "charsIn": 1069,
+    "charsSent": 181,
     "rawBillableTokens": 123681,
     "sentBillableTokens": 546,
-    "tokenReductionPct": 99.6,
-    "savedUsdPerBatch": 1.6684,
-    "savedUsdPer1000Batches": 1668.4,
-    "dlpBlocked": "3/3",
-    "loopsKilled": "2/2"
+    "savedUsd": 1.6684,
+    "charReductionPct": 83.1,
+    "tokenReductionPct": 99.6
+  },
+  "totalsAll10": {
+    "charsIn": 1373,
+    "charsSent": 353,
+    "rawBillableTokens": 124508,
+    "sentBillableTokens": 1090,
+    "savedUsd": 1.6722,
+    "charReductionPct": 74.3,
+    "tokenReductionPct": 99.1
   }
 }

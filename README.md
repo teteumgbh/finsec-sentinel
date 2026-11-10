@@ -48,3 +48,51 @@ The production function (`inspectAgentTraffic`) was extracted from `index.html` 
 
 ## 📄 License
 MIT License — Created by Matheus Filipe Ferreira Lima (`@teteumgbh`).
+
+## v1.2 — Task-to-Tool Reachability + Live Audit Trail (Nov 9, 2026)
+
+Ported from The Safe Latch v1.2, same Gatekeeper pattern: *every claim is checked
+by code, not by another model.* A new deterministic layer **L2.5** —
+`verifyTaskToolReachability(taskScope, agentTrace)` (module by Jim, integrated
+and measured by Muse) — runs on the forward path after the DLP shield and the
+loop breaker, and proves that every AWS tool call in the agent trace is
+reachable from the original task scope:
+
+- **PROVEN_REACHABLE** — tool family authorized by the task AND infrastructure
+  destination (AWS region, environment prod/staging/dev, host, S3 bucket)
+  inside the task's scope.
+- **BLOCKED_UNREACHABLE → RED_UNREACHABLE** — a tool call whose family has no
+  root in the task scope (e.g. the task says "analyze the bill" and the agent
+  tries `iam:AttachRolePolicy` with `AdministratorAccess`). The v1.0 DLP does
+  not catch this — it carries no key, token or PEM — the reachability graph does.
+- **ESCALATED_TO_STAGE_2** — family authorized but the trace binds a concrete
+  environment/host the task never named (task: "provision the homologation
+  instance"; trace: `ec2:RunInstances` in **prod**). Flagged in the audit
+  record and forwarded for strict Stage 2 FinOps policy inspection.
+
+Destination scope compares only real infrastructure destinations — generic
+business nouns in the task text are not destinations (the Muse correction
+validated first in The Safe Latch v1.2).
+
+Every inspection also emits an **audit record** (stages, citations with exact
+character spans, FNV-1a commitment hash) rendered in the new **Live Audit
+Trail** panel — exportable as `audit-ledger.json`, Gatekeeper-ledger style.
+One integrator correction, disclosed: Jim's `SECRET_EXTRACTION` pattern shipped
+with a stray space after the pipe (`aws_secret_access_key| printenv`) that could
+never match; the space was removed, everything else is his module byte-for-byte.
+(The audit renderer reused from The Safe Latch gained badge colors for the
+Sentinel statuses.)
+
+### Executed benchmark (Node harness, exact engine bytes from `index.html`, 300 iterations/scenario)
+
+| Check | Result |
+|---|---|
+| Original 7 scenarios — regression vs v1.0 | **IDENTICAL**: 1,069 → 181 chars (83.1%), 123,681 → 546 billable tokens (99.6%), US$1.6684 saved per batch |
+| S8 In-scope FinOps query (`ce:GetCostAndUsage`, us-east-1) | **PROVEN_REACHABLE 300/300** |
+| S9 Privilege escalation outside task scope | **BLOCKED_UNREACHABLE 300/300** (final `RED_UNREACHABLE`) |
+| S10 Ambiguous environment (prod) | **ESCALATED_TO_STAGE_2 300/300** |
+| All 10 scenarios | 1,373 → 353 chars (74.3%); 124,508 → 1,090 tokens (99.1%); US$1.6722 saved per batch |
+| Latency | L2.5 step median ~0.009–0.012 ms; full pipeline medians 0.0007–0.0133 ms |
+
+Reproduce: `node benchmark-v1.2.mjs` (writes `benchmark-raw-log.json` and a
+single-pass `audit-ledger.json`).
