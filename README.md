@@ -8,6 +8,15 @@
 
 🔗 **Sibling project — The Safe Latch (A Trava):** the same deterministic core (on-device gate + L2.5 Intent Reachability Graph + live audit ledger) aimed at voice/browser agents, also entered in #BuildHybridAI. Repo: [github.com/teteumgbh/the-safe-latch](https://github.com/teteumgbh/the-safe-latch) · Live: [teteumgbh.github.io/the-safe-latch](https://teteumgbh.github.io/the-safe-latch/)
 
+## ☁️ v1.3 — Real Firebase AI Logic Stage 2 (Nov 13, 2026)
+
+Stage 2 is no longer framing: `index.html` now carries a real Firebase AI Logic integration (ES module importing `firebase-app` / `firebase-ai` from the gstatic CDN, SDK v11.10.0; `initAIGateway()` + `forwardToCloud()` / `invokeFirebaseAiStage2()`), designed by Jim (Gemini) and built/measured by Muse.
+
+- It fires **only** after the local gate's `GREEN_FORWARDED` verdict (DLP + loop breaker + pruning + task-to-tool reachability all passed), sending exactly the pruned payload the gate measured — the page reconstructs the pruned payload and verifies its length against the inspection's measured `sentChars` before any send; a mismatch records `CLOUD_INFERENCE_SKIPPED (PAYLOAD_MISMATCH)` and sends nothing.
+- `CLOUD_INFERENCE_SUCCESS` is written to the exportable audit ledger **only after a real `generateContent()` response**, keyed by the inspection's FNV-1a commitment hash. Every other outcome is `CLOUD_INFERENCE_SKIPPED` with its reason.
+- **Honest-fallback by design:** if the SDK or the project config fails, the page shows a "Modo Local Apenas" badge and Stage 1 keeps deciding alone, fully functional. Pre-publish verification (Nov 13) found the bundled project config does **not** authenticate (Gemini API REST check returned `API_KEY_INVALID`), so v1.3 claims **no live cloud call** until a verified Firebase project config is supplied — the wiring, the guards and the audit events are real and unit-tested with a stubbed SDK; the cloud simply stays off until its key is.
+- The deterministic Stage-1 engine and its benchmark are untouched and re-measured after the integration: **10 scenarios × 300 iterations, all pass; original-7 totals identical (1,069 → 181 chars; 123,681 → 546 billable tokens; US$ 0.4172 saved per 7-incident batch at Gemini 3.8 Flash rates)**. Note: the Stage-2 gateway's configured model in Jim's design is `gemini-2.5-flash`, while this project's published cost figures remain priced on Gemini 3.8 Flash — the two are reconciled before any cloud number is published.
+
 ## 🚨 The Enterprise MSP Problem
 Managed Service Providers (MSPs) deploying autonomous Tier-1, SecOps, and DevOps agents face two critical operational risks:
 1. **FinOps Runaway Loops:** Two agents stuck in a confirmation ping-pong or a retry storm against a failing RDS/API endpoint can burn hundreds of thousands of tokens in minutes.

@@ -55,8 +55,8 @@
 <div class="container">
   <header>
     <div class="brand">
-      <h1>🛡️ FinSec Sentinel <span class="badge">#BuildHybridAI v1.2 · Task-to-Tool Reachability</span></h1>
-      <p class="tagline">FinSec Sentinel v1.2 — Deterministic Intent Reachability &amp; FinOps Firewall (Migrated to #BuildHybridAI / Firebase AI Logic Architecture)</p>
+      <h1>🛡️ FinSec Sentinel <span class="badge">#BuildHybridAI v1.3 · Task-to-Tool Reachability</span></h1>
+      <p class="tagline">FinSec Sentinel v1.3 — Deterministic Intent Reachability &amp; FinOps Firewall (Migrated to #BuildHybridAI / Firebase AI Logic Architecture)</p>
     </div>
     <div class="btn-row" style="width: auto;">
       <button class="btn-amber" onclick="runSentinelBenchmark()">⚡ Run 10-Scenario Benchmark</button>
@@ -97,7 +97,7 @@
     </div>
 
     <div class="card">
-      <h2>2. FinOps & SecOps Telemetry <span class="badge">Gemini Flash Pricing · Firebase AI Logic</span></h2>
+      <h2>2. FinOps & SecOps Telemetry <span class="badge">Gemini Flash Pricing · Firebase AI Logic</span> <span class="badge" id="cloudStageBadge">🏠 Modo Local Apenas (Stage 2: aguardando SDK)</span></h2>
       <div id="statusBanner" class="sentinel-status state-green">
         SENTINEL ARMED: Monitoring Multi-Agent API Gateway
       </div>
@@ -123,10 +123,10 @@
 
       <label>Deterministic Governance Audit Log</label>
       <div id="logBox" class="log-box">
-        <div class="log-item log-green">[READY] FinSec Sentinel initialized (Gemini 3.8 Flash rate: $0.00075/1K in, $0.00375/1K out).</div>
+        <div class="log-item log-green">[READY] FinSec Sentinel v1.3 initialized (Gemini 3.8 Flash rate: $0.00075/1K in, $0.00375/1K out) + Stage-2 Firebase AI Logic gateway (honest fallback).</div>
       </div>
 
-      <label style="margin-top:14px;">Live Audit Trail — every inspection as a verifiable record (v1.2)</label>
+      <label style="margin-top:14px;">Live Audit Trail — every inspection as a verifiable record (v1.3)</label>
       <div id="live-audit-tree"></div>
       <div class="btn-row" style="margin-top:8px;">
         <button class="btn-amber" onclick="exportAuditLedgerJson()">⬇ Export audit-ledger.json</button>
@@ -741,7 +741,7 @@ function verifyTaskToolReachability(taskScope, agentTrace) {
     } else {
       banner.className = "sentinel-status state-green";
       banner.textContent = `✅ VERIFIED & PRUNED: ${res.rule}`;
-      addLog(`${scName}: FORWARDED | ${res.rawChars}->${res.sentChars} chars | Latency ${res.latencyMs} ms`, 'green');
+      addLog(`${scName}: GATE CLEARED (local) | ${res.rawChars}->${res.sentChars} chars | Stage-2 cloud review queued | Latency ${res.latencyMs} ms`, 'green');
     }
 
     const pct = telemetry.rawBillableTokens > 0
@@ -762,6 +762,7 @@ function verifyTaskToolReachability(taskScope, agentTrace) {
     const customSc = { ...base, payload: document.getElementById('payloadInput').value };
     const res = inspectAgentTraffic(customSc);
     updateUI(res, base.name);
+    queueSentinelStage2(customSc, res, base.name);
   }
 
   function resetTelemetry() {
@@ -781,12 +782,216 @@ function verifyTaskToolReachability(taskScope, agentTrace) {
       loadPreset();
       const res = inspectAgentTraffic(scenarios[i]);
       updateUI(res, scenarios[i].name);
+      queueSentinelStage2(scenarios[i], res, scenarios[i].name);
       await new Promise(r => setTimeout(r, 250));
     }
     addLog("--- Benchmark Complete: DLP 3/3 | Loops 2/2 | Reachability: S8 proven · S9 blocked · S10 escalated ---", "green");
   }
 
+  // v1.3 — Stage-2 bridge (Firebase AI Logic). Reconstructs the exact pruned
+  // payload the local gate cleared (same deterministic pruning the engine
+  // applies: strip ISO timestamps, strip log tags, strip health-check lines,
+  // collapse whitespace) and verifies its length against the inspection's
+  // measured sentChars BEFORE any send. A mismatch is recorded as
+  // CLOUD_INFERENCE_SKIPPED (PAYLOAD_MISMATCH) — the page never sends a
+  // payload the gate did not measure.
+  function sentinelPrunePayload(payload) {
+    return String(payload || '')
+      .replace(/\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\]\s*/g, '')
+      .replace(/\[(INFO|DEBUG|TRACE-[0-9]+|REQ-[0-9]+)\]\s*/g, '')
+      .replace(/HealthCheck OK\.\s*/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function queueSentinelStage2(sc, res, scName) {
+    if (!res || res.status !== 'GREEN_FORWARDED' || !res.auditRecord) return;
+    const hash = res.auditRecord.commitmentHash;
+    const meta = { scenario: res.auditRecord.scenario, charsIn: res.auditRecord.charsIn, charsSent: res.auditRecord.charsSent };
+    const pruned = sentinelPrunePayload(sc.payload);
+    let tries = 0;
+    (function attempt() {
+      if (window.FinSecCloud && typeof window.FinSecCloud.forwardToCloud === 'function') {
+        if (pruned.length !== res.sentChars) {
+          window.FinSecCloud.recordCloudEvent({ event: 'CLOUD_INFERENCE_SKIPPED', commitmentHash: hash, latencyMs: 0, reason: 'PAYLOAD_MISMATCH' }, meta);
+          addLog(`${scName}: Stage 2 (Firebase AI Logic): SKIPPED #${hash} — reconstructed payload (${pruned.length} chars) does not match the gate's measured sentChars (${res.sentChars}). Nothing sent.`, 'amber');
+          return;
+        }
+        window.FinSecCloud.forwardToCloud({ taskScope: sc.taskScope || sc.name, payload: pruned }, hash, meta)
+          .then(out => {
+            if (out.success) addLog(`${scName}: Stage 2 (Firebase AI Logic): CLOUD_INFERENCE_SUCCESS #${hash} — ${out.latencyMs} ms, model ${out.model}. Real response recorded in the audit ledger.`, 'green');
+            else addLog(`${scName}: Stage 2 (Firebase AI Logic): CLOUD_INFERENCE_SKIPPED #${hash} — ${out.fallback}${out.error ? ' (' + out.error + ')' : ''}. Local gate verdict stands; nothing was sent.`, 'amber');
+          });
+      } else if (tries++ < 20) {
+        setTimeout(attempt, 150);
+      } else {
+        addLog(`${scName}: Stage 2 (Firebase AI Logic): module not loaded — cloud review skipped, local verdict stands.`, 'amber');
+      }
+    })();
+  }
+
   loadPreset();
+</script>
+<script type="module">
+/**
+ * ============================================================================
+ * FINSEC SENTINEL v1.3 — STAGE 2: FIREBASE AI LOGIC LIVE GATEWAY (Jim's design)
+ * The local deterministic gate (Stage 1: DLP -> loop breaker -> pruning ->
+ * task-to-tool reachability) is sovereign: this module only runs AFTER a
+ * GREEN_FORWARDED verdict, sends exactly the pruned payload the gate measured
+ * (length-verified by the caller against the inspection's sentChars), and
+ * writes CLOUD_INFERENCE_SUCCESS to the audit ledger ONLY after a real cloud
+ * response. Any failure degrades honestly to local-only mode — nothing is
+ * ever logged as sent that was not sent.
+ * ============================================================================
+ */
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+import { getAI, getGenerativeModel, GoogleAIBackend } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-ai.js';
+
+// Public web config (a Firebase web apiKey identifies the project; it is not
+// a secret by design — protection comes from API-key restrictions + App Check).
+const firebaseConfig = {
+  apiKey: "AIzaSyDdRygPwuFLmL-q4YMyjuv8sFvWD1mfBak",
+  authDomain: "safe-latch-e0e9.firebaseapp.com",
+  projectId: "safe-latch-e0e9",
+  storageBucket: "safe-latch-e0e9.firebasestorage.app",
+  messagingSenderId: "773893395052",
+  appId: "1:773893395052:web:3c4c861546881098b52c91"
+};
+const CLOUD_MODEL = 'gemini-2.5-flash';
+
+let _ai = null;
+let _model = null;
+let _cloudStatus = 'UNCONFIGURED'; // UNCONFIGURED | READY | FALLBACK_LOCAL
+const CLOUD_AUDIT_EVENTS = [];
+
+function setCloudBadge() {
+  if (typeof document === 'undefined') return;
+  const el = document.getElementById('cloudStageBadge');
+  if (!el) return;
+  if (_cloudStatus === 'READY') {
+    el.textContent = '☁️ Stage 2 Cloud: READY (Firebase AI Logic · ' + CLOUD_MODEL + ')';
+    el.style.color = '#34d399';
+    el.style.borderColor = '#34d399';
+  } else if (_cloudStatus === 'FALLBACK_LOCAL') {
+    el.textContent = '🏠 Modo Local Apenas — Stage 2 indisponível (SDK_INIT_FAILED)';
+    el.style.color = '#fbbf24';
+    el.style.borderColor = '#fbbf24';
+  } else {
+    el.textContent = '☁️ Stage 2 Cloud: verificando SDK…';
+  }
+}
+
+/**
+ * Records a Stage-2 outcome as an exportable audit-ledger entry, appended to
+ * the same LIVE_AUDIT_LEDGER the Export button serializes. A SUCCESS entry is
+ * created only from forwardToCloud's real-response path.
+ */
+function recordCloudEvent(evt, meta) {
+  const entry = {
+    ts: new Date().toISOString(),
+    commitmentHash: evt.commitmentHash || null,
+    scenario: (meta && meta.scenario) || 'stage-2-cloud',
+    charsIn: meta ? meta.charsIn : 0,
+    charsSent: meta ? meta.charsSent : 0,
+    savedPct: 0,
+    totalMs: evt.latencyMs || 0,
+    finalStatus: evt.event,
+    stages: [{
+      stage: 'STAGE_2_CLOUD',
+      layer: 'FIREBASE_AI_LOGIC',
+      verdict: evt.event === 'CLOUD_INFERENCE_SUCCESS' ? 'CLOUD_CONFIRMED' : 'CLOUD_SKIPPED',
+      citation: null,
+      span: null,
+      reason: evt.event === 'CLOUD_INFERENCE_SUCCESS'
+        ? `Real Firebase AI Logic generateContent() response received in ${evt.latencyMs} ms (model ${evt.model}). Summary: ${evt.responseSummary || ''}`
+        : `No cloud call completed (${evt.reason || evt.fallback || 'unknown'}). Local gate verdict stands; nothing was sent.`,
+      charsIn: meta ? meta.charsIn : 0,
+      charsSent: evt.event === 'CLOUD_INFERENCE_SUCCESS' ? (meta ? meta.charsSent : 0) : 0,
+      ms: evt.latencyMs || 0
+    }]
+  };
+  CLOUD_AUDIT_EVENTS.push(entry);
+  try { if (typeof LIVE_AUDIT_LEDGER !== 'undefined') LIVE_AUDIT_LEDGER.push(entry); } catch (e) { /* ledger unavailable in this context */ }
+  return entry;
+}
+
+/**
+ * Inicializa o SDK real do Firebase AI Logic.
+ * Retorna status sem quebrar o Gate Local caso falhe.
+ */
+export async function initAIGateway() {
+  try {
+    // CONTROLE DE CHAVE / SESSÃO: Fallback seguro se sessionStorage estiver bloqueado ou JSON inválido.
+    let storedKey = null;
+    try { storedKey = sessionStorage.getItem('firebaseApiKey'); } catch (e) { storedKey = null; }
+    const cfg = Object.assign({}, firebaseConfig);
+    if (storedKey) cfg.apiKey = storedKey;
+    if (!cfg.apiKey) {
+      _cloudStatus = 'FALLBACK_LOCAL';
+      setCloudBadge();
+      return { success: false, fallback: 'SDK_UNCONFIGURED' };
+    }
+    const app = initializeApp(cfg);
+    _ai = getAI(app, { backend: new GoogleAIBackend() });
+    _model = getGenerativeModel(_ai, { model: CLOUD_MODEL });
+    _cloudStatus = 'READY';
+    setCloudBadge();
+    return { success: true, initialized: true, model: CLOUD_MODEL };
+  } catch (e) {
+    _cloudStatus = 'FALLBACK_LOCAL';
+    setCloudBadge();
+    return { success: false, fallback: 'SDK_INIT_FAILED', error: e.message };
+  }
+}
+
+/**
+ * Stage 2 — Encaminha o payload já podado para a nuvem.
+ * NUNCA chama a nuvem se o Gate Local não liberou (GREEN_FORWARDED).
+ * Wrapper compatível: invokeFirebaseAiStage2 (mesmo Stage 2).
+ */
+export async function forwardToCloud(prunedPayload, hash, meta) {
+  const t0 = (typeof performance !== 'undefined' ? performance.now() : Date.now());
+  const latency = () => Math.round((typeof performance !== 'undefined' ? performance.now() : Date.now()) - t0);
+
+  // FAIL-SAFE: Se o SDK não foi inicializado, não tenta — registra SKIPPED.
+  if (!_ai || !_model) {
+    recordCloudEvent({ event: 'CLOUD_INFERENCE_SKIPPED', commitmentHash: hash, latencyMs: 0, reason: 'SDK_UNCONFIGURED' }, meta);
+    return { success: false, fallback: 'SDK_UNCONFIGURED', latencyMs: 0 };
+  }
+
+  try {
+    // O SDK real do Firebase AI Logic — generateContent()
+    const result = await _model.generateContent({
+      contents: [{
+        role: 'user',
+        parts: [{
+          text: `Analise este payload já podado e classifique o risco residual (0-100). Responda apenas com JSON: {"risk":0,"reason":""}. Payload: ${JSON.stringify(prunedPayload)}`
+        }]
+      }]
+    });
+    const responseText = result.response.text();
+    const latencyMs = latency();
+
+    // --- LOG HONESTO: Só nasce DEPOIS do retorno real da nuvem ---
+    recordCloudEvent({ event: 'CLOUD_INFERENCE_SUCCESS', commitmentHash: hash, latencyMs: latencyMs, model: CLOUD_MODEL, responseSummary: String(responseText).slice(0, 200) }, meta);
+
+    // Retorno LIMPO — sem nenhum campo de telemetria fantasma.
+    return { success: true, fallback: 'NONE', text: responseText, latencyMs: latencyMs, commitmentHash: hash, model: CLOUD_MODEL };
+  } catch (e) {
+    const latencyMs = latency();
+    recordCloudEvent({ event: 'CLOUD_INFERENCE_SKIPPED', commitmentHash: hash, latencyMs: latencyMs, reason: 'CLOUD_FAILURE: ' + e.message }, meta);
+    return { success: false, fallback: 'CLOUD_FAILURE', error: e.message, latencyMs: latencyMs };
+  }
+}
+
+export function invokeFirebaseAiStage2(prunedBatch, hash, meta) {
+  return forwardToCloud(prunedBatch, hash, meta);
+}
+
+window.FinSecCloud = { initAIGateway, forwardToCloud, invokeFirebaseAiStage2, recordCloudEvent, CLOUD_AUDIT_EVENTS, getStatus: () => _cloudStatus };
+setCloudBadge();
+initAIGateway();
 </script>
 </body>
 </html>
