@@ -1,7 +1,7 @@
 {
   "project": "FinSec Sentinel",
   "version": "v1.2-task-tool-reachability",
-  "generatedAt": "2026-11-14T00:36:03.842Z",
+  "generatedAt": "2026-11-14T00:42:26.985Z",
   "iterationsPerScenario": 300,
   "engine": "exact bytes extracted from index.html pure-engine markers",
   "allPass": true,
@@ -22,8 +22,8 @@
       "rawBillableTokens": 291,
       "sentBillableTokens": 280,
       "savedUsd": 0,
-      "medianLatencyMs": 0.004,
-      "medianReachabilityStepMs": 0.0104
+      "medianLatencyMs": 0.0049,
+      "medianReachabilityStepMs": 0.01
     },
     {
       "scenario": "2. AWS IAM Key Leak",
@@ -40,7 +40,7 @@
       "rawBillableTokens": 293,
       "sentBillableTokens": 0,
       "savedUsd": 0.001,
-      "medianLatencyMs": 0.001,
+      "medianLatencyMs": 0.0009,
       "medianReachabilityStepMs": null
     },
     {
@@ -112,8 +112,8 @@
       "rawBillableTokens": 291,
       "sentBillableTokens": 266,
       "savedUsd": 0,
-      "medianLatencyMs": 0.0025,
-      "medianReachabilityStepMs": 0.0086
+      "medianLatencyMs": 0.0034,
+      "medianReachabilityStepMs": 0.0085
     },
     {
       "scenario": "7. Private Key in Terraform State",
@@ -130,7 +130,7 @@
       "rawBillableTokens": 283,
       "sentBillableTokens": 0,
       "savedUsd": 0.001,
-      "medianLatencyMs": 0.0007,
+      "medianLatencyMs": 0.0006,
       "medianReachabilityStepMs": null
     },
     {
@@ -148,8 +148,8 @@
       "rawBillableTokens": 270,
       "sentBillableTokens": 270,
       "savedUsd": 0,
-      "medianLatencyMs": 0.0026,
-      "medianReachabilityStepMs": 0.0109
+      "medianLatencyMs": 0.0024,
+      "medianReachabilityStepMs": 0.0098
     },
     {
       "scenario": "9. Privilege Escalation Outside Task Scope",
@@ -166,8 +166,8 @@
       "rawBillableTokens": 283,
       "sentBillableTokens": 0,
       "savedUsd": 0.001,
-      "medianLatencyMs": 0.0128,
-      "medianReachabilityStepMs": 0.0109
+      "medianLatencyMs": 0.011,
+      "medianReachabilityStepMs": 0.0093
     },
     {
       "scenario": "10. Ambiguous Environment Escalation",
@@ -184,8 +184,8 @@
       "rawBillableTokens": 274,
       "sentBillableTokens": 274,
       "savedUsd": 0,
-      "medianLatencyMs": 0.0017,
-      "medianReachabilityStepMs": 0.0093
+      "medianLatencyMs": 0.0016,
+      "medianReachabilityStepMs": 0.0085
     }
   ],
   "totalsOriginal7": {
